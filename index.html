@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Cami vs Fede 🏠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Variables ─────────────────────────────────────────── */
+    :root {
+      --bg: #FAF8F3;
+      --card: #FFFFFF;
+      --border: #EDE8E0;
+      --text: #2C2416;
+      --text-muted: #9B8B7A;
+      --text-light: #C4B5A5;
+      --gold: #C8933A;
+      --gold-light: #F5E8D0;
+      --gold-bg: #FBF3E8;
+      --green: #6A9E5F;
+      --green-light: #EBF3E8;
+      --fede: #4A7FC1;
+      --fede-light: #E8F0FB;
+      --cami: #C4607A;
+      --cami-light: #FAEAEE;
+      --red: #D45A5A;
+      --red-light: #FAEAEA;
+      --orange: #D4845A;
+      --orange-light: #FAEEE8;
+      --purple: #8B6BB0;
+      --purple-light: #F0EAF8;
+      --shadow-sm: 0 1px 3px rgba(44,36,22,.06), 0 1px 2px rgba(44,36,22,.04);
+      --shadow: 0 4px 12px rgba(44,36,22,.08), 0 2px 6px rgba(44,36,22,.04);
+      --shadow-lg: 0 8px 24px rgba(44,36,22,.10), 0 4px 12px rgba(44,36,22,.06);
+      --radius-sm: 12px;
+      --radius: 18px;
+      --radius-lg: 24px;
+      --nav-h: 72px;
+    }
+
+    /* ─── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    input, select, textarea { font-family: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Layout ─────────────────────────────────────────────── */
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+    .top-bar {
+      display: none;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 64px;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .top-bar-brand { font-size: 18px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .top-bar-nav { display: flex; gap: 4px; }
+    .top-nav-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all .2s;
+    }
+    .top-nav-btn:hover { background: var(--bg); color: var(--text); }
+    .top-nav-btn.active { background: var(--gold-bg); color: var(--gold); }
+    .top-bar-user { display: flex; align-items: center; gap: 10px; }
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .user-chip.fede { background: var(--fede-light); color: var(--fede); }
+    .user-chip.cami { background: var(--cami-light); color: var(--cami); }
+
+    .main-content {
+      flex: 1;
+      padding: 20px 16px calc(var(--nav-h) + env(safe-area-inset-bottom) + 20px);
+      max-width: 600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 100;
+      box-shadow: 0 -4px 20px rgba(44,36,22,.06);
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-light);
+      transition: all .2s;
+      min-width: 56px;
+      text-align: center;
+    }
+    .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-item.active { color: var(--gold); }
+    .nav-item.active .nav-icon { transform: scale(1.1); }
+
+    /* ─── Sections ───────────────────────────────────────────── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ─── Page header ────────────────────────────────────────── */
+    .page-header { margin-bottom: 20px; }
+    .page-title { font-size: 26px; font-weight: 800; line-height: 1.2; }
+    .page-subtitle { font-size: 14px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+    /* ─── Cards ──────────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .card + .card { margin-top: 12px; }
+    .card-sm { padding: 14px 18px; border-radius: var(--radius-sm); }
+
+    /* ─── User selector modal ────────────────────────────────── */
+    #user-modal {
+      position: fixed; inset: 0;
+      background: rgba(44,36,22,.55);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .user-modal-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      width: 100%; max-width: 380px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    .user-modal-emoji { font-size: 48px; margin-bottom: 12px; }
+    .user-modal-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+    .user-modal-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; font-weight: 500; }
+    .user-btn-group { display: flex; gap: 12px; }
+    .user-btn {
+      flex: 1;
+      padding: 18px 12px;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 800;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      transition: all .2s;
+      border: 2px solid transparent;
+    }
+    .user-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .user-btn span { font-size: 32px; }
+    .user-btn.fede-btn { background: var(--fede-light); color: var(--fede); border-color: var(--fede-light); }
+    .user-btn.fede-btn:hover { border-color: var(--fede); }
+    .user-btn.cami-btn { background: var(--cami-light); color: var(--cami); border-color: var(--cami-light); }
+    .user-btn.cami-btn:hover { border-color: var(--cami); }
+
+    /* ─── Dashboard ──────────────────────────────────────────── */
+    .greeting { margin-bottom: 20px; }
+    .greeting-name { font-size: 28px; font-weight: 800; line-height: 1.2; }
+    .greeting-sub { font-size: 15px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+    .points-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .points-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .points-card .pc-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-bottom: 6px; }
+    .points-card .pc-name { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+    .points-card .pc-pts { font-size: 32px; font-weight: 800; line-height: 1; }
+    .points-card.fede-card .pc-pts { color: var(--fede); }
+    .points-card.cami-card .pc-pts { color: var(--cami); }
+    .points-card .pc-icon { font-size: 20px; margin-bottom: 4px; }
+
+    .progress-card { margin-bottom: 12px; }
+    .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .progress-title { font-size: 14px; font-weight: 700; }
+    .progress-val { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .progress-bar { height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #E8A84A); border-radius: 999px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+
+    .boss-card {
+      background: linear-gradient(135deg, #2C2416 0%, #4A3820 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .boss-card::before {
+      content: '👾';
+      position: absolute;
+      right: -10px; top: -10px;
+      font-size: 80px;
+      opacity: .12;
+      transform: rotate(-15deg);
+    }
+    .boss-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 8px; }
+    .boss-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .boss-pts { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.7); margin-bottom: 16px; }
+    .boss-action { display: flex; gap: 8px; }
+    .boss-btn {
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      background: var(--gold);
+      color: white;
+      transition: all .2s;
+    }
+    .boss-btn:hover { background: #B07A28; transform: translateY(-1px); }
+    .boss-btn-sec {
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      background: rgba(255,255,255,.12);
+      color: white;
+      transition: all .2s;
+    }
+    .boss-btn-sec:hover { background: rgba(255,255,255,.2); }
+
+    .section-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+    .empty-state { text-align: center; padding: 32px 20px; color: var(--text-muted); }
+    .empty-state .es-icon { font-size: 40px; margin-bottom: 10px; }
+    .empty-state .es-text { font-size: 14px; font-weight: 600; }
+    .empty-state .es-sub { font-size: 13px; margin-top: 4px; }
+
+    /* ─── Mission card ───────────────────────────────────────── */
+    .mission-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+      transition: all .2s;
+    }
+    .mission-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+    .mission-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .mission-info { flex: 1; min-width: 0; }
+    .mission-title { font-size: 16px; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+    .mission-desc { font-size: 13px; color: var(--text-muted); font-weight: 500; line-height: 1.4; }
+    .mission-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-status-pendiente { background: var(--border); color: var(--text-muted); }
+    .badge-status-en_proceso { background: var(--gold-bg); color: var(--gold); }
+    .badge-status-completada { background: var(--green-light); color: var(--green); }
+    .badge-status-vencida { background: var(--red-light); color: var(--red); }
+    .badge-status-postergada { background: var(--purple-light); color: var(--purple); }
+    .badge-diff-facil { background: var(--green-light); color: var(--green); }
+    .badge-diff-media { background: var(--gold-bg); color: var(--gold); }
+    .badge-diff-pesada { background: var(--orange-light); color: var(--orange); }
+    .badge-diff-heroica { background: var(--red-light); color: var(--red); }
+    .badge-owner-fede { background: var(--fede-light); color: var(--fede); }
+    .badge-owner-cami { background: var(--cami-light); color: var(--cami); }
+    .badge-owner-ambos { background: var(--gold-bg); color: var(--gold); }
+    .badge-pts { background: var(--gold-bg); color: var(--gold); }
+    .mission-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .action-btn {
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .action-btn:active { transform: scale(.97); }
+    .btn-complete { background: var(--green-light); color: var(--green); }
+    .btn-complete:hover { background: var(--green); color: white; }
+    .btn-process { background: var(--gold-bg); color: var(--gold); }
+    .btn-process:hover { background: var(--gold); color: white; }
+    .btn-postpone { background: var(--purple-light); color: var(--purple); }
+    .btn-postpone:hover { background: var(--purple); color: white; }
+    .btn-delete { background: var(--red-light); color: var(--red); }
+    .btn-delete:hover { background: var(--red); color: white; }
+    .mission-date { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+    .mission-pts-badge {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--gold-bg);
+      color: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    /* ─── Filters ────────────────────────────────────────────── */
+    .filters-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
+    .filters-row::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--card);
+      color: var(--text-muted);
+      border: 1.5px solid var(--border);
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .filter-chip:hover { border-color: var(--gold-light); color: var(--text); }
+    .filter-chip.active { background: var(--gold-bg); color: var(--gold); border-color: var(--gold-light); }
+
+    /* ─── FAB ────────────────────────────────────────────────── */
+    .fab {
+      position: fixed;
+      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+      right: 16px;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: white;
+      font-size: 24px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(200,147,58,.4);
+      z-index: 90;
+      transition: all .2s;
+    }
+    .fab:hover { background: #B07A28; transform: scale(1.08); }
+    .fab:active { transform: scale(.95); }
+
+    /* ─── Form ───────────────────────────────────────────────── */
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; display: block; }
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--card);
+      transition: border-color .2s;
+      appearance: none;
+    }
+    .form-input:focus { outline: none; border-color: var(--gold); }
+    textarea.form-input { resize: vertical; min-height: 80px; }
+    .form-select-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .owner-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .owner-btn {
+      padding: 12px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--card);
+      color: var(--text-muted);
+      transition: all .2s;
+      text-align: center;
+    }
+    .owner-btn:hover { border-color: var(--gold); }
+    .owner-btn.selected-fede { background: var(--fede-light); color: var(--fede); border-color: var(--fede); }
+    .owner-btn.selected-cami { background: var(--cami-light); color: var(--cami); border-color: var(--cami); }
+    .owner-btn.selected-ambos { background: var(--gold-bg); color: var(--gold); border-color: var(--gold); }
+    .diff-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .diff-btn {
+      padding: 14px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      background: var(--card);
+      color: var(--text-muted);
+      transition: all .2s;
+      text-align: center;
+    }
+    .diff-btn:hover { border-color: var(--gold); }
+    .diff-btn.sel-facil { background: var(--green-light); color: var(--green); border-color: var(--green); }
+    .diff-btn.sel-media { background: var(--gold-bg); color: var(--gold); border-color: var(--gold); }
+    .diff-btn.sel-pesada { background: var(--orange-light); color: var(--orange); border-color: var(--orange); }
+    .diff-btn.sel-heroica { background: var(--red-light); color: var(--red); border-color: var(--red); }
+    .pts-preview {
+      background: var(--gold-bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pts-preview-label { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+    .pts-preview-val { font-size: 24px; font-weight: 800; color: var(--gold); }
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--gold);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      transition: all .2s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover { background: #B07A28; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,147,58,.35); }
+    .submit-btn:active { transform: scale(.98); }
+
+    /* ─── Roulette ───────────────────────────────────────────── */
+    .roulette-container { text-align: center; }
+    .roulette-wheel-wrap {
+      position: relative;
+      width: 280px; height: 280px;
+      margin: 0 auto 24px;
+    }
+    .roulette-wheel {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--green-light) 0deg 60deg,
+        var(--gold-bg) 60deg 120deg,
+        var(--fede-light) 120deg 180deg,
+        var(--orange-light) 180deg 240deg,
+        var(--cami-light) 240deg 300deg,
+        var(--purple-light) 300deg 360deg
+      );
+      box-shadow: var(--shadow-lg);
+      transition: transform 3s cubic-bezier(.17,.67,.12,.99);
+      position: relative;
+    }
+    .roulette-wheel::after {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+    .roulette-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      z-index: 2;
+      font-size: 32px;
+    }
+    .roulette-pointer {
+      position: absolute;
+      top: -16px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px;
+      z-index: 3;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+    }
+    .roulette-label {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .spin-btn {
+      padding: 18px 40px;
+      border-radius: var(--radius);
+      background: var(--gold);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      transition: all .2s;
+      box-shadow: 0 4px 16px rgba(200,147,58,.4);
+      margin-bottom: 20px;
+    }
+    .spin-btn:hover:not(:disabled) { background: #B07A28; transform: translateY(-2px); }
+    .spin-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .roulette-result {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-top: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: left;
+      display: none;
+    }
+    .roulette-result.show { display: block; }
+    .result-category { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--gold); margin-bottom: 6px; }
+    .result-task { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+    .result-actions { display: flex; gap: 10px; }
+    .result-accept {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--green-light);
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 700;
+      transition: all .2s;
+      text-align: center;
+    }
+    .result-accept:hover { background: var(--green); color: white; }
+    .result-respin {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      transition: all .2s;
+      text-align: center;
+    }
+    .result-respin:hover { background: var(--text-muted); color: white; }
+
+    /* ─── Ranking ────────────────────────────────────────────── */
+    .rank-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .rank-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .rank-avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .rank-avatar.fede-av { background: var(--fede-light); }
+    .rank-avatar.cami-av { background: var(--cami-light); }
+    .rank-name { font-size: 18px; font-weight: 800; }
+    .rank-title { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+    .rank-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .rank-stat { text-align: center; }
+    .rank-stat-val { font-size: 22px; font-weight: 800; }
+    .rank-stat-val.fede-clr { color: var(--fede); }
+    .rank-stat-val.cami-clr { color: var(--cami); }
+    .rank-stat-val.gold-clr { color: var(--gold); }
+    .rank-stat-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .3px; margin-top: 2px; }
+    .team-card {
+      background: linear-gradient(135deg, var(--gold-bg) 0%, #FFF8EC 100%);
+      border: 1.5px solid var(--gold-light);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .team-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--gold); margin-bottom: 8px; }
+    .team-pts { font-size: 40px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .team-label { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+    .winner-banner {
+      background: linear-gradient(135deg, #2C2416 0%, #4A3820 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+    .winner-left { }
+    .winner-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gold); margin-bottom: 4px; }
+    .winner-name { font-size: 22px; font-weight: 800; }
+    .winner-desc { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 2px; }
+    .winner-emoji { font-size: 40px; }
+
+    /* ─── Rewards ────────────────────────────────────────────── */
+    .reward-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .reward-icon { font-size: 32px; flex-shrink: 0; }
+    .reward-info { flex: 1; min-width: 0; }
+    .reward-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+    .reward-desc { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .reward-pts-badge {
+      flex-shrink: 0;
+      background: var(--gold-bg);
+      color: var(--gold);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .redeem-btn {
+      flex-shrink: 0;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--gold);
+      color: white;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .redeem-btn:hover:not(:disabled) { background: #B07A28; transform: translateY(-1px); }
+    .redeem-btn:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; }
+    .reward-shared { border-color: var(--gold-light); background: var(--gold-bg); }
+    .reward-shared .reward-pts-badge { background: var(--card); }
+    .my-pts-bar {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .mypb-label { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+    .mypb-val { font-size: 22px; font-weight: 800; color: var(--gold); }
+
+    /* ─── Toast ──────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+      left: 50%; transform: translateX(-50%) translateY(80px);
+      background: #2C2416;
+      color: white;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      z-index: 999;
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: var(--shadow-lg);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ─── Confirm modal ──────────────────────────────────────── */
+    #confirm-modal {
+      position: fixed; inset: 0;
+      background: rgba(44,36,22,.5);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: none; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    #confirm-modal.show { display: flex; }
+    .confirm-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px;
+      width: 100%; max-width: 340px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+    }
+    .confirm-icon { font-size: 36px; margin-bottom: 12px; }
+    .confirm-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .confirm-msg { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-bottom: 20px; }
+    .confirm-actions { display: flex; gap: 10px; }
+    .confirm-yes {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--red-light);
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 700;
+      transition: all .2s;
+    }
+    .confirm-yes:hover { background: var(--red); color: white; }
+    .confirm-no {
+      flex: 1;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      transition: all .2s;
+    }
+    .confirm-no:hover { background: var(--text-muted); color: white; }
+
+    /* ─── Responsive: Desktop ────────────────────────────────── */
+    @media (min-width: 700px) {
+      .top-bar { display: flex; }
+      .bottom-nav { display: none; }
+      .fab { bottom: 24px; right: 24px; }
+      .main-content {
+        padding: 32px 24px 48px;
+        max-width: 780px;
+      }
+      .points-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+      .mission-actions { flex-wrap: nowrap; }
+      #toast { bottom: 24px; }
+    }
+    @media (min-width: 960px) {
+      .main-content { max-width: 900px; }
+      .missions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .missions-grid .mission-card { margin-bottom: 0; }
+    }
+
+    /* ─── Animations ─────────────────────────────────────────── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section.active { animation: fadeIn .25s ease; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .spinning { animation: none; }
+
+    .confetti-text {
+      display: inline-block;
+      animation: confetti .6s ease;
+    }
+    @keyframes confetti {
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- User selector modal -->
+<div id="user-modal">
+  <div class="user-modal-card">
+    <div class="user-modal-emoji">🏠</div>
+    <h2 class="user-modal-title">Cami vs Fede</h2>
+    <p class="user-modal-sub">¿Quién está usando la app hoy?</p>
+    <div class="user-btn-group">
+      <button class="user-btn fede-btn" onclick="selectUser('fede')">
+        <span>🧔</span>
+        Fede
+      </button>
+      <button class="user-btn cami-btn" onclick="selectUser('cami')">
+        <span>👩‍🦰</span>
+        Cami
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div id="confirm-modal">
+  <div class="confirm-card">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <h3 class="confirm-title" id="confirm-title">¿Estás seguro?</h3>
+    <p class="confirm-msg" id="confirm-msg">Esta acción no se puede deshacer.</p>
+    <div class="confirm-actions">
+      <button class="confirm-yes" id="confirm-yes">Confirmar</button>
+      <button class="confirm-no" onclick="closeConfirm()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- App -->
+<div id="app" style="display:none">
+
+  <!-- Top bar (desktop) -->
+  <header class="top-bar">
+    <div class="top-bar-brand">🏠 Casa HQ</div>
+    <nav class="top-bar-nav">
+      <button class="top-nav-btn active" data-section="dashboard" onclick="navigate('dashboard')">Inicio</button>
+      <button class="top-nav-btn" data-section="misiones" onclick="navigate('misiones')">Misiones</button>
+      <button class="top-nav-btn" data-section="ruleta" onclick="navigate('ruleta')">Ruleta</button>
+      <button class="top-nav-btn" data-section="ranking" onclick="navigate('ranking')">Ranking</button>
+      <button class="top-nav-btn" data-section="recompensas" onclick="navigate('recompensas')">Recompensas</button>
+    </nav>
+    <div class="top-bar-user">
+      <div class="user-chip" id="top-user-chip" onclick="changeUser()"></div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main-content">
+
+    <!-- ─── Dashboard ─────────────────────────────────── -->
+    <section id="section-dashboard" class="section active">
+      <div class="greeting" id="greeting"></div>
+      <div class="points-grid" id="points-grid"></div>
+      <div class="card progress-card" id="weekly-progress-card"></div>
+      <div id="boss-section"></div>
+      <div class="section-title" style="margin-top:20px">Misiones del día 📋</div>
+      <div id="today-missions"></div>
+      <div style="height:8px"></div>
+    </section>
+
+    <!-- ─── Misiones ──────────────────────────────────── -->
+    <section id="section-misiones" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Misiones ⚔️</h1>
+        <p class="page-subtitle">Todas las misiones activas de Casa HQ</p>
+      </div>
+      <div class="filters-row" id="mission-filters">
+        <button class="filter-chip active" data-filter="todas" onclick="filterMissions('todas',this)">Todas</button>
+        <button class="filter-chip" data-filter="pendiente" onclick="filterMissions('pendiente',this)">Esperando héroe</button>
+        <button class="filter-chip" data-filter="en_proceso" onclick="filterMissions('en_proceso',this)">En batalla</button>
+        <button class="filter-chip" data-filter="completada" onclick="filterMissions('completada',this)">Completadas</button>
+        <button class="filter-chip" data-filter="vencida" onclick="filterMissions('vencida',this)">Vencidas</button>
+        <button class="filter-chip" data-filter="postergada" onclick="filterMissions('postergada',this)">Pateadas</button>
+        <button class="filter-chip" data-filter="fede" onclick="filterMissions('fede',this)">Fede</button>
+        <button class="filter-chip" data-filter="cami" onclick="filterMissions('cami',this)">Cami</button>
+        <button class="filter-chip" data-filter="ambos" onclick="filterMissions('ambos',this)">Ambos</button>
+      </div>
+      <div id="missions-list" class="missions-grid"></div>
+    </section>
+
+    <!-- ─── Crear misión ──────────────────────────────── -->
+    <section id="section-crear" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Nueva misión ✨</h1>
+        <p class="page-subtitle">Agregá una tarea al arsenal de Casa HQ</p>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Nombre de la misión</label>
+          <input class="form-input" id="f-title" type="text" placeholder="ej: Doblar ropa épica" maxlength="80" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción (opcional)</label>
+          <textarea class="form-input" id="f-desc" placeholder="Detalles de la misión..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsable</label>
+          <div class="owner-grid">
+            <button class="owner-btn" data-owner="fede" onclick="selectOwner('fede')">🧔 Fede</button>
+            <button class="owner-btn" data-owner="cami" onclick="selectOwner('cami')">👩‍🦰 Cami</button>
+            <button class="owner-btn" data-owner="ambos" onclick="selectOwner('ambos')">🤝 Ambos</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dificultad</label>
+          <div class="diff-grid">
+            <button class="diff-btn" data-diff="facil" onclick="selectDiff('facil')">🟢 Fácil<br><small>5 pts</small></button>
+            <button class="diff-btn" data-diff="media" onclick="selectDiff('media')">🟡 Media<br><small>10 pts</small></button>
+            <button class="diff-btn" data-diff="pesada" onclick="selectDiff('pesada')">🟠 Pesada<br><small>20 pts</small></button>
+            <button class="diff-btn" data-diff="heroica" onclick="selectDiff('heroica')">🔴 Heroica<br><small>30 pts</small></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select class="form-input" id="f-category">
+            <option value="Cocina">🍳 Cocina</option>
+            <option value="Orden">📦 Orden</option>
+            <option value="Limpieza">🧹 Limpieza</option>
+            <option value="Compras">🛒 Compras</option>
+            <option value="Administrativo">📄 Administrativo</option>
+            <option value="Familia">👨‍👩‍👧 Familia</option>
+            <option value="Rápida">⚡ Rápida (10 min)</option>
+          </select>
+        </div>
+        <div class="form-select-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Fecha límite</label>
+            <input class="form-input" id="f-date" type="date" />
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Puntos</label>
+            <input class="form-input" id="f-pts" type="number" min="1" max="999" placeholder="Auto" />
+          </div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="pts-preview" id="pts-preview">
+          <span class="pts-preview-label">Puntos estimados</span>
+          <span class="pts-preview-val" id="pts-preview-val">–</span>
+        </div>
+        <button class="submit-btn" onclick="saveMission()" style="margin-top:16px">Crear misión 🚀</button>
+      </div>
+    </section>
+
+    <!-- ─── Ruleta ─────────────────────────────────────── -->
+    <section id="section-ruleta" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Ruleta 🎰</h1>
+        <p class="page-subtitle">Dejá que el destino elija la próxima misión</p>
+      </div>
+      <div class="roulette-container">
+        <div class="roulette-wheel-wrap">
+          <div class="roulette-pointer">▼</div>
+          <div class="roulette-wheel" id="roulette-wheel">
+            <div class="roulette-center">🏠</div>
+          </div>
+        </div>
+        <button class="spin-btn" id="spin-btn" onclick="spinRoulette()">Girar ruleta 🎲</button>
+        <div class="roulette-result" id="roulette-result">
+          <div class="result-category" id="result-category">Categoría</div>
+          <div class="result-task" id="result-task">Nombre de tarea</div>
+          <div class="mission-meta" id="result-meta"></div>
+          <div class="result-actions">
+            <button class="result-accept" onclick="acceptRouletteTask()">Aceptar misión ✅</button>
+            <button class="result-respin" onclick="spinRoulette()">Girar otra vez 🔄</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Ranking ────────────────────────────────────── -->
+    <section id="section-ranking" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Ranking 🏆</h1>
+        <p class="page-subtitle">Esta semana en Casa HQ</p>
+      </div>
+      <div id="ranking-content"></div>
+    </section>
+
+    <!-- ─── Recompensas ────────────────────────────────── -->
+    <section id="section-recompensas" class="section">
+      <div class="page-header">
+        <h1 class="page-title">Recompensas 🎁</h1>
+        <p class="page-subtitle">Gastá tus puntos en algo bueno</p>
+      </div>
+      <div id="my-pts-bar" class="my-pts-bar"></div>
+      <div class="section-title">Recompensas personales</div>
+      <div id="rewards-personal"></div>
+      <div class="section-title" style="margin-top:20px">Recompensas del equipo 🤝</div>
+      <div id="rewards-team"></div>
+    </section>
+
+  </main>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-section="dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">🏠</span>
+      Inicio
+    </button>
+    <button class="nav-item" data-section="misiones" onclick="navigate('misiones')">
+      <span class="nav-icon">⚔️</span>
+      Misiones
+    </button>
+    <button class="nav-item" data-section="ruleta" onclick="navigate('ruleta')">
+      <span class="nav-icon">🎰</span>
+      Ruleta
+    </button>
+    <button class="nav-item" data-section="ranking" onclick="navigate('ranking')">
+      <span class="nav-icon">🏆</span>
+      Ranking
+    </button>
+    <button class="nav-item" data-section="recompensas" onclick="navigate('recompensas')">
+      <span class="nav-icon">🎁</span>
+      Premios
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="navigate('crear')" title="Nueva misión">+</button>
+</div>
+
+<script>
+/* ─── Constants ─────────────────────────────────────────── */
+const DIFF_POINTS = { facil: 5, media: 10, pesada: 20, heroica: 30 };
+const DIFF_LABELS = { facil: '🟢 Fácil', media: '🟡 Media', pesada: '🟠 Pesada', heroica: '🔴 Heroica' };
+const STATUS_LABELS = {
+  pendiente: 'Esperando héroe',
+  en_proceso: 'En batalla',
+  completada: 'Misión cumplida',
+  vencida: 'Se pudrió todo',
+  postergada: 'Pateada elegantemente',
+};
+const OWNER_LABELS = { fede: '🧔 Fede', cami: '👩‍🦰 Cami', ambos: '🤝 Ambos' };
+const ROULETTE_TASKS = [
+  { task: 'Lavar platos', category: 'Cocina', diff: 'facil' },
+  { task: 'Preparar cena', category: 'Cocina', diff: 'media' },
+  { task: 'Doblar ropa', category: 'Orden', diff: 'facil' },
+  { task: 'Ordenar living 10 min', category: 'Orden', diff: 'facil' },
+  { task: 'Pasar aspiradora', category: 'Limpieza', diff: 'media' },
+  { task: 'Limpiar baño', category: 'Limpieza', diff: 'media' },
+  { task: 'Sacar basura', category: 'Rápida', diff: 'facil' },
+  { task: 'Hacer compras', category: 'Compras', diff: 'pesada' },
+  { task: 'Revisar gastos', category: 'Administrativo', diff: 'media' },
+  { task: 'Regar plantas', category: 'Rápida', diff: 'facil' },
+  { task: 'Cambiar sábanas', category: 'Limpieza', diff: 'pesada' },
+  { task: 'Limpiar heladera', category: 'Cocina', diff: 'pesada' },
+  { task: 'Ordenar placard', category: 'Orden', diff: 'heroica' },
+  { task: 'Fregar piso', category: 'Limpieza', diff: 'media' },
+  { task: 'Pedir turno médico', category: 'Administrativo', diff: 'facil' },
+  { task: 'Organizar papeles', category: 'Administrativo', diff: 'media' },
+];
+
+const REWARDS_PERSONAL = [
+  { id: 'r1', icon: '🎬', name: 'Elegís la película', desc: 'Voto dorado esta noche', pts: 50 },
+  { id: 'r2', icon: '☕', name: 'El otro prepara café/mate', desc: 'Descanso merecido', pts: 80 },
+  { id: 'r3', icon: '🍽️', name: 'Cena elegida por vos', desc: 'Menú a tu gusto', pts: 100 },
+  { id: 'r4', icon: '🙅', name: 'Noche sin lavar platos', desc: 'Una noche de descanso total', pts: 150 },
+  { id: 'r5', icon: '🌙', name: 'Salida/cita pendiente', desc: 'Te ganaste una salida', pts: 200 },
+  { id: 'r6', icon: '🛋️', name: 'Sofá para vos solo/a', desc: '2 horas de Netflix sin interrupciones', pts: 60 },
+];
+const REWARDS_TEAM = [
+  { id: 'rt1', icon: '🍕', name: 'Pedir comida a domicilio', desc: 'Noche sin cocinar juntos', pts: 120, combined: true },
+  { id: 'rt2', icon: '🎮', name: 'Noche de juegos', desc: 'Board games o videojuegos en pareja', pts: 150, combined: true },
+  { id: 'rt3', icon: '🛁', name: 'Spa day casero', desc: 'Tarde de relax total', pts: 200, combined: true },
+  { id: 'rt4', icon: '🌆', name: 'Salida especial', desc: 'Cena o plan romántico', pts: 300, combined: true },
+];
+
+const BOSS_MISSIONS = [
+  { title: 'Ordenar placard', desc: 'Ropa de temporada, donar lo que no se usa', diff: 'heroica', category: 'Orden' },
+  { title: 'Limpiar heladera', desc: 'Todo afuera, limpiar bien y reorganizar', diff: 'pesada', category: 'Cocina' },
+  { title: 'Organizar papeles', desc: 'Facturas, documentos, todo en su lugar', diff: 'pesada', category: 'Administrativo' },
+  { title: 'Orden general de la casa', desc: 'Barrida épica de toda la casa', diff: 'heroica', category: 'Limpieza' },
+  { title: 'Compras grandes del mes', desc: 'Supermercado completo con lista', diff: 'pesada', category: 'Compras' },
+];
+
+/* ─── State ─────────────────────────────────────────────── */
+let state = {
+  currentUser: null,
+  missions: [],
+  points: { fede: 0, cami: 0 },
+  completedThisWeek: { fede: 0, cami: 0 },
+  rewardHistory: [],
+  weekStart: getWeekStart(),
+};
+
+let formState = { owner: 'ambos', diff: 'media' };
+let currentFilter = 'todas';
+let rouletteResult = null;
+let confirmCallback = null;
+
+/* ─── Persistence ────────────────────────────────────────── */
+function save() {
+  localStorage.setItem('cvf_state', JSON.stringify(state));
+}
+function load() {
+  const raw = localStorage.getItem('cvf_state');
+  if (raw) {
+    const loaded = JSON.parse(raw);
+    state = { ...state, ...loaded };
+    if (!state.weekStart) state.weekStart = getWeekStart();
+    checkWeekReset();
+  } else {
+    seedData();
+  }
+}
+function getWeekStart() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d.setDate(diff));
+  mon.setHours(0,0,0,0);
+  return mon.toISOString();
+}
+function checkWeekReset() {
+  const savedWeek = new Date(state.weekStart).toISOString().slice(0,10);
+  const currentWeek = getWeekStart().slice(0,10);
+  if (savedWeek !== currentWeek) {
+    state.weekStart = getWeekStart();
+    state.completedThisWeek = { fede: 0, cami: 0 };
+    state.points = { fede: 0, cami: 0 };
+    save();
+  }
+}
+function seedData() {
+  const today = new Date();
+  const fmt = d => d.toISOString().slice(0,10);
+  const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate()+n); return r; };
+
+  state.missions = [
+    { id: uid(), title: 'Lavar platos', desc: 'Después de cenar', diff: 'facil', pts: 5, owner: 'cami', category: 'Cocina', status: 'pendiente', date: fmt(today), created: Date.now() },
+    { id: uid(), title: 'Doblar ropa', desc: 'La que está en el sillón', diff: 'facil', pts: 5, owner: 'fede', category: 'Orden', status: 'en_proceso', date: fmt(addDays(today,1)), created: Date.now() },
+    { id: uid(), title: 'Sacar basura', desc: '', diff: 'facil', pts: 5, owner: 'ambos', category: 'Rápida', status: 'pendiente', date: fmt(today), created: Date.now() },
+    { id: uid(), title: 'Ordenar living 10 minutos', desc: 'Almohadones, cosas del sillón', diff: 'facil', pts: 5, owner: 'cami', category: 'Orden', status: 'pendiente', date: fmt(addDays(today,2)), created: Date.now() },
+    { id: uid(), title: 'Hacer compras', desc: 'Lista completa de la semana', diff: 'pesada', pts: 20, owner: 'ambos', category: 'Compras', status: 'pendiente', date: fmt(addDays(today,3)), created: Date.now() },
+    { id: uid(), title: 'Limpiar heladera', desc: 'Limpiar todo y reorganizar', diff: 'pesada', pts: 20, owner: 'fede', category: 'Cocina', status: 'pendiente', date: fmt(addDays(today,5)), created: Date.now() },
+    { id: uid(), title: 'Preparar cena especial', desc: 'Elegir algo rico para el fin de semana', diff: 'media', pts: 10, owner: 'cami', category: 'Cocina', status: 'pendiente', date: fmt(addDays(today,4)), created: Date.now() },
+    { id: uid(), title: 'Revisar gastos del mes', desc: 'Planilla de gastos actualizada', diff: 'media', pts: 10, owner: 'fede', category: 'Administrativo', status: 'pendiente', date: fmt(addDays(today,7)), created: Date.now() },
+    { id: uid(), title: 'Regar plantas', desc: '', diff: 'facil', pts: 5, owner: 'cami', category: 'Rápida', status: 'completada', date: fmt(today), created: Date.now(), completedAt: Date.now() },
+    { id: uid(), title: 'Cambiar sábanas', desc: 'Las del cuarto y del living', diff: 'pesada', pts: 20, owner: 'ambos', category: 'Limpieza', status: 'pendiente', date: fmt(addDays(today,6)), created: Date.now() },
+  ];
+  state.points = { fede: 15, cami: 10 };
+  state.completedThisWeek = { fede: 2, cami: 1 };
+  save();
+}
+
+/* ─── Helpers ────────────────────────────────────────────── */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+}
+function greet() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function isToday(dateStr) { return dateStr === todayStr(); }
+function isOverdue(m) {
+  return m.date && m.date < todayStr() && m.status !== 'completada' && m.status !== 'postergada';
+}
+
+/* ─── Navigation ─────────────────────────────────────────── */
+let currentSection = 'dashboard';
+function navigate(section) {
+  if (section === 'crear') {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-crear').classList.add('active');
+    document.querySelectorAll('.nav-item, .top-nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('fab').style.display = 'none';
+    currentSection = 'crear';
+    return;
+  }
+  currentSection = section;
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  document.querySelectorAll('.nav-item, .top-nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.section === section);
+  });
+  document.getElementById('fab').style.display = '';
+  renderSection(section);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderSection(section) {
+  if (section === 'dashboard') renderDashboard();
+  if (section === 'misiones') renderMissions();
+  if (section === 'ranking') renderRanking();
+  if (section === 'recompensas') renderRewards();
+}
+
+/* ─── User ───────────────────────────────────────────────── */
+function selectUser(user) {
+  state.currentUser = user;
+  save();
+  document.getElementById('user-modal').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  updateUserChip();
+  renderDashboard();
+}
+function changeUser() {
+  document.getElementById('user-modal').style.display = 'flex';
+}
+function updateUserChip() {
+  const chip = document.getElementById('top-user-chip');
+  if (!chip) return;
+  const u = state.currentUser;
+  chip.className = 'user-chip ' + u;
+  chip.textContent = u === 'fede' ? '🧔 Fede' : '👩‍🦰 Cami';
+}
+
+/* ─── Dashboard ──────────────────────────────────────────── */
+function renderDashboard() {
+  updateUserChip();
+  const u = state.currentUser;
+  const uLabel = u === 'fede' ? 'Fede' : 'Cami';
+
+  // Greeting
+  document.getElementById('greeting').innerHTML = `
+    <div class="greeting-name">${greet()}, ${uLabel}! ${u === 'fede' ? '🧔' : '👩‍🦰'}</div>
+    <div class="greeting-sub">Equipo Casa está en marcha. ¡A misionar!</div>
+  `;
+
+  // Points
+  const totalPts = state.points.fede + state.points.cami;
+  const weekGoal = 100;
+  const pct = Math.min(100, Math.round(totalPts / weekGoal * 100));
+  document.getElementById('points-grid').innerHTML = `
+    <div class="points-card fede-card">
+      <div class="pc-icon">🧔</div>
+      <div class="pc-label">Fede</div>
+      <div class="pc-pts">${state.points.fede}</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-top:4px">pts esta semana</div>
+    </div>
+    <div class="points-card cami-card">
+      <div class="pc-icon">👩‍🦰</div>
+      <div class="pc-label">Cami</div>
+      <div class="pc-pts">${state.points.cami}</div>
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-top:4px">pts esta semana</div>
+    </div>
+  `;
+
+  // Weekly progress
+  document.getElementById('weekly-progress-card').innerHTML = `
+    <div class="progress-label">
+      <span class="progress-title">⚡ Meta semanal del equipo</span>
+      <span class="progress-val">${totalPts}/${weekGoal} pts</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width:${pct}%"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);font-weight:600;margin-top:8px">
+      ${pct >= 100 ? '🎉 ¡Meta alcanzada! Recompensa de equipo desbloqueada' : `Faltan ${weekGoal - totalPts} pts para la meta`}
+    </div>
+  `;
+
+  // Boss semanal
+  const bossMission = state.missions.find(m => m.isBoss && m.status !== 'completada');
+  const bossSection = document.getElementById('boss-section');
+  if (bossMission) {
+    bossSection.innerHTML = `
+      <div class="boss-card">
+        <div class="boss-tag">👾 Boss Semanal</div>
+        <div class="boss-title">${bossMission.title}</div>
+        <div class="boss-pts">${bossMission.pts} puntos · ${DIFF_LABELS[bossMission.diff]}</div>
+        <div class="boss-action">
+          <button class="boss-btn" onclick="missionAction('${bossMission.id}','completada')">Derrotar Boss 💪</button>
+          <button class="boss-btn-sec" onclick="missionAction('${bossMission.id}','en_proceso')">En progreso</button>
+        </div>
+      </div>
+    `;
+  } else {
+    const randBoss = BOSS_MISSIONS[Math.floor(Math.random() * BOSS_MISSIONS.length)];
+    bossSection.innerHTML = `
+      <div class="boss-card">
+        <div class="boss-tag">👾 Boss Semanal</div>
+        <div class="boss-title">${randBoss.title}</div>
+        <div class="boss-pts">${DIFF_POINTS[randBoss.diff]} puntos · ${DIFF_LABELS[randBoss.diff]}</div>
+        <div class="boss-action">
+          <button class="boss-btn" onclick="addBossMission(${JSON.stringify(randBoss).replace(/"/g,'&quot;')})">Aceptar Boss 🔥</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Today's missions
+  const today = todayStr();
+  const todayMissions = state.missions.filter(m =>
+    m.status !== 'completada' &&
+    (m.date === today || isOverdue(m)) &&
+    (m.owner === u || m.owner === 'ambos')
+  ).slice(0, 4);
+  const todayEl = document.getElementById('today-missions');
+  if (todayMissions.length === 0) {
+    todayEl.innerHTML = `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">Sin misiones urgentes hoy</div><div class="es-sub">¡Buen trabajo, héroe!</div></div>`;
+  } else {
+    todayEl.innerHTML = todayMissions.map(m => renderMissionCard(m, true)).join('');
+  }
+}
+
+function addBossMission(boss) {
+  const m = {
+    id: uid(),
+    title: boss.title,
+    desc: boss.desc || '',
+    diff: boss.diff,
+    pts: DIFF_POINTS[boss.diff] + 10,
+    owner: 'ambos',
+    category: boss.category,
+    status: 'pendiente',
+    date: getNextSunday(),
+    created: Date.now(),
+    isBoss: true,
+  };
+  state.missions.push(m);
+  save();
+  showToast('👾 Boss semanal aceptado!');
+  renderDashboard();
+}
+function getNextSunday() {
+  const d = new Date();
+  const daysUntilSun = 7 - d.getDay();
+  d.setDate(d.getDate() + daysUntilSun);
+  return d.toISOString().slice(0,10);
+}
+
+/* ─── Mission card render ────────────────────────────────── */
+function renderMissionCard(m, compact = false) {
+  const overdueFlag = isOverdue(m);
+  const status = overdueFlag && m.status === 'pendiente' ? 'vencida' : m.status;
+  const actions = m.status === 'completada' ? '' : `
+    <div class="mission-actions">
+      ${m.status !== 'en_proceso' && m.status !== 'completada' ? `<button class="action-btn btn-process" onclick="missionAction('${m.id}','en_proceso')">⚔️ En batalla</button>` : ''}
+      ${m.status !== 'completada' ? `<button class="action-btn btn-complete" onclick="missionAction('${m.id}','completada')">✅ Completar</button>` : ''}
+      ${m.status !== 'postergada' && m.status !== 'completada' ? `<button class="action-btn btn-postpone" onclick="missionAction('${m.id}','postergada')">📅 Patear</button>` : ''}
+      ${!compact ? `<button class="action-btn btn-delete" onclick="deleteMission('${m.id}')">🗑️</button>` : ''}
+    </div>
+  `;
+  return `
+    <div class="mission-card" data-id="${m.id}">
+      <div class="mission-top">
+        <div class="mission-info">
+          <div class="mission-title">${m.isBoss ? '👾 ' : ''}${m.title}</div>
+          ${m.desc ? `<div class="mission-desc">${m.desc}</div>` : ''}
+        </div>
+        <div class="mission-pts-badge">${m.pts}p</div>
+      </div>
+      <div class="mission-meta">
+        <span class="badge badge-status-${status}">${STATUS_LABELS[status] || status}</span>
+        <span class="badge badge-diff-${m.diff}">${DIFF_LABELS[m.diff]}</span>
+        <span class="badge badge-owner-${m.owner}">${OWNER_LABELS[m.owner]}</span>
+        ${m.category ? `<span class="badge" style="background:var(--border);color:var(--text-muted)">${m.category}</span>` : ''}
+        ${m.date ? `<span class="mission-date">📅 ${fmt(m.date)}</span>` : ''}
+      </div>
+      ${actions}
+    </div>
+  `;
+}
+
+/* ─── Mission actions ────────────────────────────────────── */
+function missionAction(id, newStatus) {
+  const m = state.missions.find(x => x.id === id);
+  if (!m) return;
+  const old = m.status;
+  m.status = newStatus;
+  if (newStatus === 'completada' && old !== 'completada') {
+    m.completedAt = Date.now();
+    const owners = m.owner === 'ambos' ? ['fede','cami'] : [m.owner];
+    owners.forEach(o => {
+      state.points[o] = (state.points[o] || 0) + m.pts;
+      state.completedThisWeek[o] = (state.completedThisWeek[o] || 0) + 1;
+    });
+    showToast(`🎉 Misión cumplida! +${m.pts} puntos`);
+  } else if (newStatus === 'en_proceso') {
+    showToast('⚔️ En batalla!');
+  } else if (newStatus === 'postergada') {
+    showToast('📅 Pateada elegantemente');
+  }
+  save();
+  renderSection(currentSection);
+  if (currentSection !== 'dashboard') renderDashboard();
+}
+
+function deleteMission(id) {
+  confirm2(
+    '🗑️', '¿Eliminar misión?',
+    'Esta misión desaparecerá del mapa para siempre.',
+    () => {
+      state.missions = state.missions.filter(m => m.id !== id);
+      save();
+      renderSection(currentSection);
+      showToast('Misión eliminada');
+    }
+  );
+}
+
+/* ─── Missions list ──────────────────────────────────────── */
+function renderMissions() {
+  let list = [...state.missions];
+  if (currentFilter !== 'todas') {
+    if (['fede','cami','ambos'].includes(currentFilter)) {
+      list = list.filter(m => m.owner === currentFilter);
+    } else {
+      list = list.filter(m => {
+        if (currentFilter === 'vencida') return isOverdue(m) && m.status !== 'completada' && m.status !== 'postergada';
+        return m.status === currentFilter;
+      });
+    }
+  }
+  list.sort((a,b) => {
+    if (a.status === 'completada' && b.status !== 'completada') return 1;
+    if (a.status !== 'completada' && b.status === 'completada') return -1;
+    return (a.date || '') < (b.date || '') ? -1 : 1;
+  });
+  const el = document.getElementById('missions-list');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">🏖️</div><div class="es-text">Sin misiones en esta categoría</div><div class="es-sub">¡Aprovechá y descansá un rato!</div></div>`;
+  } else {
+    el.innerHTML = list.map(m => renderMissionCard(m)).join('');
+  }
+}
+
+function filterMissions(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderMissions();
+}
+
+/* ─── Create mission ─────────────────────────────────────── */
+function selectOwner(owner) {
+  formState.owner = owner;
+  document.querySelectorAll('.owner-btn').forEach(b => b.className = 'owner-btn');
+  const btn = document.querySelector(`.owner-btn[data-owner="${owner}"]`);
+  if (btn) btn.className = `owner-btn selected-${owner}`;
+}
+function selectDiff(diff) {
+  formState.diff = diff;
+  document.querySelectorAll('.diff-btn').forEach(b => b.className = 'diff-btn');
+  const btn = document.querySelector(`.diff-btn[data-diff="${diff}"]`);
+  if (btn) btn.className = `diff-btn sel-${diff}`;
+  const auto = DIFF_POINTS[diff];
+  document.getElementById('pts-preview-val').textContent = auto + ' pts';
+  const fInp = document.getElementById('f-pts');
+  if (!fInp.dataset.manual) fInp.value = '';
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const fPts = document.getElementById('f-pts');
+  if (fPts) {
+    fPts.addEventListener('input', () => {
+      fPts.dataset.manual = fPts.value ? '1' : '';
+      if (fPts.value) document.getElementById('pts-preview-val').textContent = fPts.value + ' pts';
+      else document.getElementById('pts-preview-val').textContent = (DIFF_POINTS[formState.diff] || '–') + ' pts';
+    });
+  }
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  const df = document.getElementById('f-date');
+  if (df) df.value = tomorrow.toISOString().slice(0,10);
+  selectOwner('ambos');
+  selectDiff('media');
+});
+
+function saveMission() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('⚠️ Poné un nombre a la misión'); return; }
+  const manualPts = document.getElementById('f-pts').value;
+  const pts = manualPts ? parseInt(manualPts) : DIFF_POINTS[formState.diff];
+  const m = {
+    id: uid(),
+    title,
+    desc: document.getElementById('f-desc').value.trim(),
+    diff: formState.diff,
+    pts,
+    owner: formState.owner,
+    category: document.getElementById('f-category').value,
+    status: 'pendiente',
+    date: document.getElementById('f-date').value,
+    created: Date.now(),
+  };
+  state.missions.push(m);
+  save();
+  showToast('🚀 Misión creada!');
+  // reset
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-pts').value = '';
+  document.getElementById('f-pts').dataset.manual = '';
+  navigate('misiones');
+}
+
+/* ─── Roulette ───────────────────────────────────────────── */
+let spinning = false;
+let wheelDeg = 0;
+function spinRoulette() {
+  if (spinning) return;
+  spinning = true;
+  const btn = document.getElementById('spin-btn');
+  btn.disabled = true;
+  btn.textContent = 'Girando… 🌀';
+  document.getElementById('roulette-result').classList.remove('show');
+  const extra = 1440 + Math.random() * 720;
+  wheelDeg += extra;
+  const wheel = document.getElementById('roulette-wheel');
+  wheel.style.transition = 'transform 3s cubic-bezier(.17,.67,.12,.99)';
+  wheel.style.transform = `rotate(${wheelDeg}deg)`;
+  const task = ROULETTE_TASKS[Math.floor(Math.random() * ROULETTE_TASKS.length)];
+  rouletteResult = task;
+  setTimeout(() => {
+    spinning = false;
+    btn.disabled = false;
+    btn.textContent = 'Girar otra vez 🎲';
+    showRouletteResult(task);
+  }, 3100);
+}
+function showRouletteResult(task) {
+  document.getElementById('result-category').textContent = task.category;
+  document.getElementById('result-task').textContent = task.task;
+  document.getElementById('result-meta').innerHTML = `
+    <span class="badge badge-diff-${task.diff}">${DIFF_LABELS[task.diff]}</span>
+    <span class="badge badge-pts">+${DIFF_POINTS[task.diff]} pts</span>
+  `;
+  document.getElementById('roulette-result').classList.add('show');
+}
+function acceptRouletteTask() {
+  if (!rouletteResult) return;
+  const m = {
+    id: uid(),
+    title: rouletteResult.task,
+    desc: 'Asignada por la ruleta',
+    diff: rouletteResult.diff,
+    pts: DIFF_POINTS[rouletteResult.diff],
+    owner: state.currentUser,
+    category: rouletteResult.category,
+    status: 'pendiente',
+    date: todayStr(),
+    created: Date.now(),
+  };
+  state.missions.push(m);
+  save();
+  showToast('✅ Misión aceptada! ¡Buena suerte!');
+  document.getElementById('roulette-result').classList.remove('show');
+  document.getElementById('spin-btn').textContent = 'Girar ruleta 🎲';
+  rouletteResult = null;
+}
+
+/* ─── Ranking ────────────────────────────────────────────── */
+function getRankTitle(pts) {
+  if (pts >= 200) return 'Leyenda del hogar 🏆';
+  if (pts >= 120) return 'Héroe doméstico ⭐';
+  if (pts >= 60) return 'Guerrero de la casa ⚔️';
+  if (pts >= 20) return 'Aprendiz dedicado 📚';
+  return 'Recién empieza 🌱';
+}
+function renderRanking() {
+  const fp = state.points.fede;
+  const cp = state.points.cami;
+  const fc = state.completedThisWeek.fede || 0;
+  const cc = state.completedThisWeek.cami || 0;
+  const total = fp + cp;
+  const winner = fp > cp ? 'fede' : cp > fp ? 'cami' : null;
+
+  let html = '';
+
+  // Team card
+  html += `
+    <div class="team-card">
+      <div class="team-tag">⚡ Equipo Casa — Esta semana</div>
+      <div class="team-pts">${total}</div>
+      <div class="team-label">puntos en equipo</div>
+      <div style="margin-top:12px;font-size:13px;color:var(--text-muted);font-weight:600">${fc + cc} misiones completadas juntos 🏠</div>
+    </div>
+  `;
+
+  // Winner
+  if (winner) {
+    const wName = winner === 'fede' ? 'Fede' : 'Cami';
+    const wPts = winner === 'fede' ? fp : cp;
+    const lPts = winner === 'fede' ? cp : fp;
+    const diff2 = wPts - lPts;
+    html += `
+      <div class="winner-banner">
+        <div class="winner-left">
+          <div class="winner-tag">Líder de la semana</div>
+          <div class="winner-name">${winner === 'fede' ? '🧔' : '👩‍🦰'} ${wName}</div>
+          <div class="winner-desc">${diff2} pts de ventaja</div>
+        </div>
+        <div class="winner-emoji">🥇</div>
+      </div>
+    `;
+  } else if (fp > 0) {
+    html += `
+      <div class="winner-banner">
+        <div class="winner-left">
+          <div class="winner-tag">Esta semana</div>
+          <div class="winner-name">🤝 Empate épico</div>
+          <div class="winner-desc">¡Equipo imbatible!</div>
+        </div>
+        <div class="winner-emoji">🏅</div>
+      </div>
+    `;
+  }
+
+  // Fede card
+  html += `
+    <div class="rank-card">
+      <div class="rank-header">
+        <div class="rank-avatar fede-av">🧔</div>
+        <div>
+          <div class="rank-name">Fede</div>
+          <div class="rank-title">${getRankTitle(fp)}</div>
+        </div>
+      </div>
+      <div class="rank-stats">
+        <div class="rank-stat">
+          <div class="rank-stat-val fede-clr">${fp}</div>
+          <div class="rank-stat-label">Puntos</div>
+        </div>
+        <div class="rank-stat">
+          <div class="rank-stat-val gold-clr">${fc}</div>
+          <div class="rank-stat-label">Misiones</div>
+        </div>
+        <div class="rank-stat">
+          <div class="rank-stat-val fede-clr">${fp > 0 ? Math.round(fp / Math.max(fc,1)) : 0}</div>
+          <div class="rank-stat-label">Avg/misión</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Cami card
+  html += `
+    <div class="rank-card">
+      <div class="rank-header">
+        <div class="rank-avatar cami-av">👩‍🦰</div>
+        <div>
+          <div class="rank-name">Cami</div>
+          <div class="rank-title">${getRankTitle(cp)}</div>
+        </div>
+      </div>
+      <div class="rank-stats">
+        <div class="rank-stat">
+          <div class="rank-stat-val cami-clr">${cp}</div>
+          <div class="rank-stat-label">Puntos</div>
+        </div>
+        <div class="rank-stat">
+          <div class="rank-stat-val gold-clr">${cc}</div>
+          <div class="rank-stat-label">Misiones</div>
+        </div>
+        <div class="rank-stat">
+          <div class="rank-stat-val cami-clr">${cp > 0 ? Math.round(cp / Math.max(cc,1)) : 0}</div>
+          <div class="rank-stat-label">Avg/misión</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Fun stat
+  const mostAvoided = getMostAvoided();
+  if (mostAvoided) {
+    html += `
+      <div class="card card-sm" style="margin-top:4px">
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Misión más evitada 😅</div>
+        <div style="font-size:15px;font-weight:700">${mostAvoided}</div>
+      </div>
+    `;
+  }
+
+  document.getElementById('ranking-content').innerHTML = html;
+}
+
+function getMostAvoided() {
+  const pending = state.missions.filter(m => m.status === 'pendiente' || m.status === 'postergada');
+  if (pending.length === 0) return null;
+  pending.sort((a,b) => (a.date || '') < (b.date || '') ? -1 : 1);
+  return pending[0]?.title || null;
+}
+
+/* ─── Rewards ────────────────────────────────────────────── */
+function renderRewards() {
+  const u = state.currentUser;
+  const myPts = state.points[u] || 0;
+  const totalPts = state.points.fede + state.points.cami;
+
+  document.getElementById('my-pts-bar').innerHTML = `
+    <div><div class="mypb-label">Tus puntos disponibles</div></div>
+    <div class="mypb-val">${myPts} pts</div>
+  `;
+
+  document.getElementById('rewards-personal').innerHTML = REWARDS_PERSONAL.map(r => {
+    const canRedeem = myPts >= r.pts;
+    return `
+      <div class="reward-card">
+        <div class="reward-icon">${r.icon}</div>
+        <div class="reward-info">
+          <div class="reward-name">${r.name}</div>
+          <div class="reward-desc">${r.desc}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+          <div class="reward-pts-badge">${r.pts} pts</div>
+          <button class="redeem-btn" ${canRedeem ? '' : 'disabled'} onclick="redeemReward('${r.id}','personal',${r.pts},'${r.name}')">
+            ${canRedeem ? 'Canjear' : `Faltan ${r.pts - myPts}`}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('rewards-team').innerHTML = REWARDS_TEAM.map(r => {
+    const canRedeem = totalPts >= r.pts;
+    return `
+      <div class="reward-card reward-shared">
+        <div class="reward-icon">${r.icon}</div>
+        <div class="reward-info">
+          <div class="reward-name">${r.name}</div>
+          <div class="reward-desc">${r.desc} · Entre los dos</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+          <div class="reward-pts-badge">${r.pts} pts</div>
+          <button class="redeem-btn" ${canRedeem ? '' : 'disabled'} onclick="redeemReward('${r.id}','team',${r.pts},'${r.name}')">
+            ${canRedeem ? 'Canjear' : `Faltan ${r.pts - totalPts}`}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function redeemReward(id, type, pts, name) {
+  confirm2(
+    '🎁', `¿Canjear "${name}"?`,
+    type === 'personal'
+      ? `Se descontarán ${pts} puntos de tus puntos personales.`
+      : `Se descontarán ${pts} puntos entre los dos.`,
+    () => {
+      if (type === 'personal') {
+        state.points[state.currentUser] -= pts;
+      } else {
+        const total = state.points.fede + state.points.cami;
+        const fedeShare = Math.round(pts * (state.points.fede / total));
+        state.points.fede = Math.max(0, state.points.fede - fedeShare);
+        state.points.cami = Math.max(0, state.points.cami - (pts - fedeShare));
+      }
+      state.rewardHistory.push({ id, name, pts, type, redeemedAt: Date.now(), by: state.currentUser });
+      save();
+      showToast(`🎉 ¡"${name}" canjeada!`);
+      renderRewards();
+      renderDashboard();
+    }
+  );
+}
+
+/* ─── Toast ──────────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ─── Confirm ────────────────────────────────────────────── */
+function confirm2(icon, title, msg, cb) {
+  document.getElementById('confirm-icon').textContent = icon;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = cb;
+  document.getElementById('confirm-modal').classList.add('show');
+  document.getElementById('confirm-yes').onclick = () => { closeConfirm(); cb(); };
+}
+function closeConfirm() {
+  document.getElementById('confirm-modal').classList.remove('show');
+  confirmCallback = null;
+}
+
+/* ─── Init ───────────────────────────────────────────────── */
+load();
+if (state.currentUser) {
+  document.getElementById('user-modal').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  updateUserChip();
+  renderDashboard();
+}
+
+// Auto-mark overdue missions
+function autoMarkOverdue() {
+  let changed = false;
+  state.missions.forEach(m => {
+    if (isOverdue(m) && m.status === 'pendiente') { changed = true; }
+  });
+  if (changed) save();
+}
+autoMarkOverdue();
+</script>
+</body>
+</html>
