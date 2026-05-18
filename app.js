@@ -723,6 +723,13 @@ document.addEventListener('click', (e) => {
     if (!isOpen && drop) drop.classList.add('open');
     return;
   }
+  // Redeem reward
+  const redeemBtn = e.target.closest('.redeem-btn:not(:disabled)');
+  if (redeemBtn && redeemBtn.dataset.rewardId) {
+    const { rewardId, rewardType, rewardPts, rewardName } = redeemBtn.dataset;
+    redeemReward(rewardId, rewardType, parseInt(rewardPts), rewardName);
+    return;
+  }
   // Click outside → close menus
   closeAllMenus();
 });
@@ -802,13 +809,20 @@ function renderMissions() {
 
 function filterMissions(filter, btn) {
   currentFilter = filter;
+  // Clear both rows, highlight the clicked button
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.owner-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderMissions();
 }
 
 function filterOwner(owner, btn) {
   currentOwnerFilter = owner;
+  // Reset to default status filter (hoy) if coming from a special chip
+  if (currentFilter === 'postergada' || currentFilter === 'vencida') {
+    currentFilter = 'hoy';
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+  }
   document.querySelectorAll('.owner-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderMissions();
@@ -1198,13 +1212,6 @@ function renderRewards() {
     `;
   }).join('');
 }
-
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.redeem-btn:not(:disabled)');
-  if (!btn || !btn.dataset.rewardId) return;
-  const { rewardId, rewardType, rewardPts, rewardName } = btn.dataset;
-  redeemReward(rewardId, rewardType, parseInt(rewardPts), rewardName);
-});
 
 function redeemReward(id, type, pts, name) {
   const msg = type === 'personal'
