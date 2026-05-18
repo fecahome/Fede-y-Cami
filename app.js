@@ -3,12 +3,42 @@ const DIFF_POINTS = { facil: 5, media: 10, pesada: 20, heroica: 30 };
 const DIFF_LABELS = { facil: '🟢 Fácil', media: '🟡 Media', pesada: '🟠 Pesada', heroica: '🔴 Heroica' };
 const STATUS_LABELS = {
   pendiente:  'Esperando héroe',
-  en_proceso: 'En batalla',
-  completada: 'Misión cumplida',
-  vencida:    'Se pudrió todo',
-  postergada: 'Pateada elegantemente',
+  en_proceso: 'En batalla ⚔️',
+  completada: '✅ Misión cumplida',
+  vencida:    '💀 El caos ganó',
+  postergada: '📅 Pateada al futuro',
 };
 const OWNER_LABELS = { fede: '🧔 Fede', cami: '👩‍🦰 Cami', ambos: '🤝 Ambos' };
+
+const DAILY_MESSAGES = [
+  { text: 'El reino agradece tu esfuerzo ⚔️', sub: 'Cada misión cuenta' },
+  { text: 'Hoy el caos no va a ganar 🏆', sub: '¡A misionar!' },
+  { text: 'La casa sube de nivel 🌟', sub: 'Sigan así, héroes' },
+  { text: 'El equipo está imparable 💪', sub: 'Una misión más y se nota' },
+  { text: 'El reino espera sus héroes 🏠', sub: 'Hay misiones esperando' },
+  { text: 'Hoy se farmea orden 🧹', sub: 'El caos retrocede' },
+  { text: 'Un día de gloria en el hogar ✨', sub: 'A completar misiones' },
+  { text: 'El desorden no se rinde solo 💫', sub: 'Pero nosotros tampoco' },
+];
+
+const MISSION_TEMPLATES = [
+  { title: 'Lavar platos',          diff: 'facil',  category: 'Cocina',         icon: '🍽️' },
+  { title: 'Sacar basura',           diff: 'facil',  category: 'Rápida',         icon: '🗑️' },
+  { title: 'Tender la cama',         diff: 'facil',  category: 'Orden',          icon: '🛏️' },
+  { title: 'Barrer',                 diff: 'facil',  category: 'Limpieza',       icon: '🧹' },
+  { title: 'Doblar ropa',            diff: 'facil',  category: 'Orden',          icon: '👕' },
+  { title: 'Regar plantas',          diff: 'facil',  category: 'Rápida',         icon: '🌱' },
+  { title: 'Preparar mate/café',     diff: 'facil',  category: 'Cocina',         icon: '☕' },
+  { title: 'Ordenar living',         diff: 'facil',  category: 'Orden',          icon: '🛋️' },
+  { title: 'Limpiar baño',           diff: 'media',  category: 'Limpieza',       icon: '🚿' },
+  { title: 'Pasar trapo',            diff: 'media',  category: 'Limpieza',       icon: '🧽' },
+  { title: 'Preparar cena',          diff: 'media',  category: 'Cocina',         icon: '🍳' },
+  { title: 'Hacer compras',          diff: 'pesada', category: 'Compras',        icon: '🛒' },
+  { title: 'Cambiar sábanas',        diff: 'pesada', category: 'Limpieza',       icon: '🛏️' },
+  { title: 'Limpiar heladera',       diff: 'pesada', category: 'Cocina',         icon: '❄️' },
+  { title: 'Ordenar placard',        diff: 'heroica',category: 'Orden',          icon: '🗄️' },
+  { title: 'Revisar gastos',         diff: 'media',  category: 'Administrativo', icon: '📊' },
+];
 
 const ROULETTE_TASKS = [
   { task: 'Lavar platos',            category: 'Cocina',          diff: 'facil'  },
@@ -63,7 +93,8 @@ let state = {
 };
 
 let formState = { owner: 'ambos', diff: 'media' };
-let currentFilter = 'todas';
+let currentFilter = 'pendiente';
+let currentOwnerFilter = 'todos';
 let currentSection = 'dashboard';
 let rouletteResult = null;
 let spinning = false;
@@ -177,6 +208,14 @@ function navigate(section) {
   const fab = document.getElementById('fab');
   fab.style.display = section === 'crear' ? 'none' : '';
 
+  // Reset misiones tab to pendiente when visiting
+  if (section === 'misiones') {
+    currentFilter = 'pendiente';
+    currentOwnerFilter = 'todos';
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
+    document.querySelectorAll('[data-filter2]').forEach((b, i) => b.classList.toggle('active', i === 0));
+  }
+
   renderSection(section);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -187,6 +226,7 @@ function renderSection(section) {
     misiones:    renderMissions,
     ranking:     renderRanking,
     recompensas: renderRewards,
+    crear:       renderTemplates,
   };
   if (renders[section]) renders[section]();
 }
@@ -213,62 +253,151 @@ function updateUserChip() {
   chip.textContent = u === 'fede' ? '🧔 Fede' : '👩‍🦰 Cami';
 }
 
+/* ─── Dashboard helpers ────────────────────────────────────────── */
+function getDailyMessage() {
+  const idx = new Date().getDay(); // 0–6, determinista por día
+  return DAILY_MESSAGES[idx % DAILY_MESSAGES.length];
+}
+
+function getRecommendedMission() {
+  const u = state.currentUser;
+  const candidates = state.missions.filter(m =>
+    (m.status === 'pendiente' || m.status === 'en_proceso') &&
+    (m.owner === u || m.owner === 'ambos')
+  );
+  if (!candidates.length) return null;
+  // Priorizar: vencidas > hoy > más antiguas
+  candidates.sort((a, b) => {
+    const aOver = isOverdue(a) ? 0 : 1;
+    const bOver = isOverdue(b) ? 0 : 1;
+    if (aOver !== bOver) return aOver - bOver;
+    return (a.date || '') < (b.date || '') ? -1 : 1;
+  });
+  return candidates[0];
+}
+
+function getNextTeamReward() {
+  const total = state.points.fede + state.points.cami;
+  const sorted = [...REWARDS_TEAM].sort((a, b) => a.pts - b.pts);
+  return sorted.find(r => r.pts > total) || null;
+}
+
+function getPendingCount() {
+  return state.missions.filter(m => m.status === 'pendiente' || m.status === 'en_proceso').length;
+}
+
 /* ─── Dashboard ────────────────────────────────────────────────── */
 function renderDashboard() {
   updateUserChip();
   const u = state.currentUser;
   const uLabel = u === 'fede' ? 'Fede' : 'Cami';
+  const uEmoji = u === 'fede' ? '🧔' : '👩‍🦰';
+  const msg = getDailyMessage();
+  const pending = getPendingCount();
 
-  document.getElementById('greeting').innerHTML = `
-    <div class="greeting-name">${greet()}, ${uLabel}! ${u === 'fede' ? '🧔' : '👩‍🦰'}</div>
-    <div class="greeting-sub">Equipo Casa está en marcha. ¡A misionar!</div>
+  // ── Hero card
+  document.getElementById('hero-card').innerHTML = `
+    <div class="hero-greeting">${greet()}, ${uLabel}! ${uEmoji}</div>
+    <div class="hero-message">${msg.text}</div>
+    <div class="hero-sub">${pending > 0 ? `Hay ${pending} misión${pending > 1 ? 'es' : ''} esperando héroe` : msg.sub}</div>
   `;
 
+  // ── Points trio
   const totalPts = state.points.fede + state.points.cami;
-  const weekGoal = 100;
-  const pct = Math.min(100, Math.round((totalPts / weekGoal) * 100));
-
-  document.getElementById('points-grid').innerHTML = `
-    <div class="points-card fede-card">
-      <div class="pc-icon">🧔</div>
-      <div class="pc-label">Fede</div>
-      <div class="pc-pts">${state.points.fede}</div>
-      <div class="pc-sub">pts esta semana</div>
+  document.getElementById('points-trio').innerHTML = `
+    <div class="trio-card trio-fede">
+      <div class="trio-emoji">🧔</div>
+      <div class="trio-pts">${state.points.fede}</div>
+      <div class="trio-label">Fede</div>
     </div>
-    <div class="points-card cami-card">
-      <div class="pc-icon">👩‍🦰</div>
-      <div class="pc-label">Cami</div>
-      <div class="pc-pts">${state.points.cami}</div>
-      <div class="pc-sub">pts esta semana</div>
+    <div class="trio-card trio-team">
+      <div class="trio-emoji">🏠</div>
+      <div class="trio-pts">${totalPts}</div>
+      <div class="trio-label">Equipo</div>
     </div>
-  `;
-
-  document.getElementById('weekly-progress').innerHTML = `
-    <div class="progress-label">
-      <span class="progress-title">⚡ Meta semanal del equipo</span>
-      <span class="progress-val">${totalPts}/${weekGoal} pts</span>
-    </div>
-    <div class="progress-bar">
-      <div class="progress-fill" style="width:${pct}%"></div>
-    </div>
-    <div class="progress-note">
-      ${pct >= 100
-        ? '🎉 ¡Meta alcanzada! Recompensa de equipo desbloqueada'
-        : `Faltan ${weekGoal - totalPts} pts para la meta del equipo`}
+    <div class="trio-card trio-cami">
+      <div class="trio-emoji">👩‍🦰</div>
+      <div class="trio-pts">${state.points.cami}</div>
+      <div class="trio-label">Cami</div>
     </div>
   `;
 
-  renderBoss();
+  // ── Misión recomendada
+  const rec = getRecommendedMission();
+  const recEl = document.getElementById('rec-mission');
+  if (rec) {
+    const over = isOverdue(rec);
+    recEl.innerHTML = `
+      <div class="rec-card ${over ? 'rec-urgent' : ''}">
+        <div class="rec-tag">${over ? '🔥 ¡Urgente!' : '📌 Hacer ahora'}</div>
+        <div class="rec-title">${rec.title}</div>
+        <div class="rec-meta">
+          <span class="badge badge-diff-${rec.diff}">${DIFF_LABELS[rec.diff]}</span>
+          <span class="badge badge-pts">+${rec.pts} pts</span>
+          <span class="badge badge-owner-${rec.owner}">${OWNER_LABELS[rec.owner]}</span>
+        </div>
+        <div class="rec-actions">
+          <button class="rec-btn-main" data-action="completada" data-id="${rec.id}">✅ Completar</button>
+          <button class="rec-btn-sec"  data-action="en_proceso" data-id="${rec.id}">⚔️ Tomar</button>
+        </div>
+      </div>
+    `;
+  } else {
+    recEl.innerHTML = `
+      <div class="rec-card rec-empty">
+        <div class="rec-tag">🎉 Sin misiones urgentes</div>
+        <div class="rec-title">El reino está en paz</div>
+        <div class="rec-meta"><span class="badge badge-pts">¡Buen trabajo, héroes!</span></div>
+      </div>
+    `;
+  }
 
+  // ── Progreso equipo hacia próxima recompensa
+  const nextReward = getNextTeamReward();
+  const progEl = document.getElementById('team-reward-progress');
+  if (nextReward) {
+    const pct = Math.min(100, Math.round((totalPts / nextReward.pts) * 100));
+    const faltaN = nextReward.pts - totalPts;
+    progEl.innerHTML = `
+      <div class="team-progress-card">
+        <div class="tp-header">
+          <span class="tp-icon">${nextReward.icon}</span>
+          <div class="tp-info">
+            <div class="tp-title">Próxima recompensa de equipo</div>
+            <div class="tp-reward">${nextReward.name}</div>
+          </div>
+          <div class="tp-pts">${totalPts}/${nextReward.pts}</div>
+        </div>
+        <div class="progress-bar" style="margin-top:10px">
+          <div class="progress-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="tp-note">${faltaN <= 0 ? '🎉 ¡Recompensa desbloqueada!' : `Faltan ${faltaN} pts para desbloquear`}</div>
+      </div>
+    `;
+  } else {
+    progEl.innerHTML = `
+      <div class="team-progress-card">
+        <div class="tp-header">
+          <span class="tp-icon">🏆</span>
+          <div class="tp-info">
+            <div class="tp-title">¡Todas las recompensas desbloqueadas!</div>
+            <div class="tp-reward">Son unos campeones 🎉</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Misiones del día
   const todayMissions = state.missions.filter(m =>
     m.status !== 'completada' &&
     (m.date === todayStr() || isOverdue(m)) &&
     (m.owner === u || m.owner === 'ambos')
-  ).slice(0, 4);
+  ).slice(0, 3);
 
   const todayEl = document.getElementById('today-missions');
   todayEl.innerHTML = todayMissions.length === 0
-    ? `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">Sin misiones urgentes hoy</div><div class="es-sub">¡Buen trabajo, héroe!</div></div>`
+    ? `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">Sin misiones urgentes hoy</div><div class="es-sub">¡El reino está tranquilo!</div></div>`
     : todayMissions.map(m => buildMissionCard(m, true)).join('');
 }
 
@@ -412,33 +541,95 @@ document.addEventListener('click', (e) => {
 function renderMissions() {
   let list = [...state.missions];
 
-  if (currentFilter !== 'todas') {
-    if (['fede', 'cami', 'ambos'].includes(currentFilter)) {
-      list = list.filter(m => m.owner === currentFilter);
-    } else if (currentFilter === 'vencida') {
-      list = list.filter(m => isOverdue(m) && m.status !== 'completada' && m.status !== 'postergada');
-    } else {
-      list = list.filter(m => m.status === currentFilter);
-    }
+  // Filtro de estado (tab principal)
+  if (currentFilter === 'vencida') {
+    list = list.filter(m => isOverdue(m) && m.status !== 'completada' && m.status !== 'postergada');
+  } else if (currentFilter === 'postergada') {
+    list = list.filter(m => m.status === 'postergada');
+  } else {
+    list = list.filter(m => m.status === currentFilter);
   }
 
-  list.sort((a, b) => {
-    if (a.status === 'completada' && b.status !== 'completada') return 1;
-    if (a.status !== 'completada' && b.status === 'completada') return -1;
-    return (a.date || '') < (b.date || '') ? -1 : 1;
-  });
+  // Filtro de responsable (chip secundario)
+  if (currentOwnerFilter !== 'todos') {
+    list = list.filter(m => m.owner === currentOwnerFilter || m.owner === 'ambos');
+  }
+
+  list.sort((a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
+
+  // Subtitle dinámico
+  const subtitleMap = {
+    pendiente:  `${list.length} misión${list.length !== 1 ? 'es' : ''} esperando héroe`,
+    en_proceso: `${list.length} misión${list.length !== 1 ? 'es' : ''} en batalla`,
+    completada: `${list.length} victoria${list.length !== 1 ? 's' : ''} lograda${list.length !== 1 ? 's' : ''}`,
+    postergada: `${list.length} pateada${list.length !== 1 ? 's' : ''} al futuro`,
+    vencida:    `${list.length} vez que el caos ganó`,
+  };
+  const sub = document.getElementById('missions-subtitle');
+  if (sub) sub.textContent = subtitleMap[currentFilter] || 'El reino espera tus hazañas';
+
+  const emptyMsgs = {
+    pendiente:  { icon: '🎉', text: '¡Sin misiones pendientes!', sub: 'El reino está tranquilo' },
+    en_proceso: { icon: '⚔️', text: 'Nada en batalla aún', sub: 'Tomá una misión y empezá' },
+    completada: { icon: '🏆', text: 'Aún no hay victorias', sub: 'Completá una misión y aparece acá' },
+    postergada: { icon: '📅', text: 'Nada pateado por ahora', sub: '¡Bien hecho!' },
+    vencida:    { icon: '💀', text: 'Sin misiones vencidas', sub: '¡Equipo sin deudas!' },
+  };
 
   const el = document.getElementById('missions-list');
-  el.innerHTML = list.length === 0
-    ? `<div class="empty-state"><div class="es-icon">🏖️</div><div class="es-text">Sin misiones en esta categoría</div><div class="es-sub">¡Aprovechá y descansá!</div></div>`
-    : list.map(m => buildMissionCard(m)).join('');
+  if (list.length === 0) {
+    const e = emptyMsgs[currentFilter] || { icon: '🏖️', text: 'Sin misiones acá', sub: '¡Aprovechá!' };
+    el.innerHTML = `<div class="empty-state"><div class="es-icon">${e.icon}</div><div class="es-text">${e.text}</div><div class="es-sub">${e.sub}</div></div>`;
+  } else {
+    el.innerHTML = list.map(m => buildMissionCard(m)).join('');
+  }
 }
 
 function filterMissions(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
+  // Activar tab si existe, si no chip
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   renderMissions();
+}
+
+function filterOwner(owner, btn) {
+  currentOwnerFilter = owner;
+  document.querySelectorAll('[data-filter2]').forEach(b => b.classList.remove('active', 'active-all'));
+  if (btn) btn.classList.add('active');
+  renderMissions();
+}
+
+/* ─── Templates ───────────────────────────────────────────────── */
+function renderTemplates() {
+  const el = document.getElementById('templates-grid');
+  if (!el) return;
+  el.innerHTML = MISSION_TEMPLATES.map(t => `
+    <button class="template-btn" onclick="quickAddTemplate(${JSON.stringify(t).replace(/"/g, '&quot;')})">
+      <span class="tmpl-icon">${t.icon}</span>
+      <span class="tmpl-name">${t.title}</span>
+      <span class="tmpl-pts">+${DIFF_POINTS[t.diff]}pts</span>
+    </button>
+  `).join('');
+}
+
+function quickAddTemplate(t) {
+  const m = {
+    id: uid(),
+    title: t.title,
+    desc: '',
+    diff: t.diff,
+    pts: DIFF_POINTS[t.diff],
+    owner: state.currentUser,
+    category: t.category,
+    status: 'pendiente',
+    date: todayStr(),
+    created: Date.now(),
+  };
+  state.missions.push(m);
+  save();
+  showToast(`⚡ "${t.title}" agregada!`);
 }
 
 /* ─── Create mission form ──────────────────────────────────────── */

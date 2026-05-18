@@ -57,8 +57,8 @@
       <button class="top-nav-btn active" data-section="dashboard" onclick="navigate('dashboard')">Inicio</button>
       <button class="top-nav-btn" data-section="misiones"    onclick="navigate('misiones')">Misiones</button>
       <button class="top-nav-btn" data-section="ruleta"      onclick="navigate('ruleta')">Ruleta</button>
-      <button class="top-nav-btn" data-section="ranking"     onclick="navigate('ranking')">Ranking</button>
-      <button class="top-nav-btn" data-section="recompensas" onclick="navigate('recompensas')">Recompensas</button>
+      <button class="top-nav-btn" data-section="ranking"     onclick="navigate('ranking')">Tabla de Gloria</button>
+      <button class="top-nav-btn" data-section="recompensas" onclick="navigate('recompensas')">Botín</button>
     </nav>
     <div class="top-bar-user">
       <div class="user-chip" id="top-user-chip" onclick="changeUser()"></div>
@@ -70,30 +70,49 @@
 
     <!-- ─── Dashboard ─────────────────────────────────────── -->
     <section id="section-dashboard" class="section active">
-      <div id="greeting" class="greeting"></div>
-      <div id="points-grid" class="points-grid"></div>
-      <div id="weekly-progress" class="card progress-card"></div>
-      <div id="boss-section"></div>
-      <div class="section-title" style="margin-top:20px">Misiones del día 📋</div>
+
+      <!-- Hero card: saludo + mensaje del día -->
+      <div id="hero-card" class="hero-card"></div>
+
+      <!-- Puntos: Fede | Equipo | Cami -->
+      <div id="points-trio" class="points-trio"></div>
+
+      <!-- Misión recomendada -->
+      <div id="rec-mission"></div>
+
+      <!-- CTA ruleta -->
+      <button class="roulette-cta" onclick="navigate('ruleta')">
+        🎲 Girar la Ruleta del Destino
+      </button>
+
+      <!-- Progreso hacia próxima recompensa de equipo -->
+      <div id="team-reward-progress"></div>
+
+      <!-- Misiones del día -->
+      <div class="section-label" style="margin-top:20px">Misiones de hoy ⚔️</div>
       <div id="today-missions"></div>
+
     </section>
 
     <!-- ─── Misiones ──────────────────────────────────────── -->
     <section id="section-misiones" class="section">
       <div class="page-header">
         <h1 class="page-title">Misiones ⚔️</h1>
-        <p class="page-subtitle">Todas las misiones activas de Casa Quest</p>
+        <p class="page-subtitle" id="missions-subtitle">El reino espera tus hazañas</p>
       </div>
-      <div class="filters-row">
-        <button class="filter-chip active" data-filter="todas"       onclick="filterMissions('todas',this)">Todas</button>
-        <button class="filter-chip" data-filter="pendiente"          onclick="filterMissions('pendiente',this)">Esperando héroe</button>
-        <button class="filter-chip" data-filter="en_proceso"         onclick="filterMissions('en_proceso',this)">En batalla</button>
-        <button class="filter-chip" data-filter="completada"         onclick="filterMissions('completada',this)">Completadas</button>
-        <button class="filter-chip" data-filter="vencida"            onclick="filterMissions('vencida',this)">Vencidas</button>
-        <button class="filter-chip" data-filter="postergada"         onclick="filterMissions('postergada',this)">Pateadas</button>
-        <button class="filter-chip" data-filter="fede"               onclick="filterMissions('fede',this)">Fede</button>
-        <button class="filter-chip" data-filter="cami"               onclick="filterMissions('cami',this)">Cami</button>
-        <button class="filter-chip" data-filter="ambos"              onclick="filterMissions('ambos',this)">Ambos</button>
+      <!-- Tabs principales -->
+      <div class="mission-tabs">
+        <button class="tab-btn active" data-filter="pendiente"  onclick="filterMissions('pendiente',this)">Pendientes</button>
+        <button class="tab-btn"        data-filter="en_proceso" onclick="filterMissions('en_proceso',this)">En curso</button>
+        <button class="tab-btn"        data-filter="completada" onclick="filterMissions('completada',this)">Victorias</button>
+      </div>
+      <!-- Chips secundarios -->
+      <div class="filters-row" style="margin-bottom:12px">
+        <button class="filter-chip active-all" data-filter2="todos"  onclick="filterOwner('todos',this)">Todos</button>
+        <button class="filter-chip" data-filter2="fede"              onclick="filterOwner('fede',this)">🧔 Fede</button>
+        <button class="filter-chip" data-filter2="cami"              onclick="filterOwner('cami',this)">👩‍🦰 Cami</button>
+        <button class="filter-chip" data-filter2="postergada"        onclick="filterMissions('postergada',this)">📅 Pateadas</button>
+        <button class="filter-chip" data-filter2="vencida"           onclick="filterMissions('vencida',this)">💀 Vencidas</button>
       </div>
       <div id="missions-list" class="missions-grid"></div>
     </section>
@@ -102,8 +121,14 @@
     <section id="section-crear" class="section">
       <div class="page-header">
         <h1 class="page-title">Nueva misión ✨</h1>
-        <p class="page-subtitle">Agregá una tarea al arsenal de Casa Quest</p>
+        <p class="page-subtitle">Elegí una plantilla o creá la tuya</p>
       </div>
+
+      <!-- Plantillas rápidas -->
+      <div class="section-label">⚡ Agregar rápido</div>
+      <div class="templates-grid" id="templates-grid"></div>
+
+      <div class="section-label" style="margin-top:20px">✏️ Crear personalizada</div>
       <div class="card">
         <div class="form-group">
           <label class="form-label" for="f-title">Nombre de la misión</label>
@@ -193,25 +218,25 @@
       </div>
     </section>
 
-    <!-- ─── Ranking ────────────────────────────────────────── -->
+    <!-- ─── Ranking / Tabla de gloria ───────────────────────── -->
     <section id="section-ranking" class="section">
       <div class="page-header">
-        <h1 class="page-title">Ranking 🏆</h1>
-        <p class="page-subtitle">Esta semana en Casa Quest</p>
+        <h1 class="page-title">Tabla de Gloria 🏆</h1>
+        <p class="page-subtitle">El historial épico del reino esta semana</p>
       </div>
       <div id="ranking-content"></div>
     </section>
 
-    <!-- ─── Recompensas ────────────────────────────────────── -->
+    <!-- ─── Botín del reino ────────────────────────────────── -->
     <section id="section-recompensas" class="section">
       <div class="page-header">
-        <h1 class="page-title">Recompensas 🎁</h1>
-        <p class="page-subtitle">Gastá tus puntos en algo bueno</p>
+        <h1 class="page-title">Botín del Reino 🎁</h1>
+        <p class="page-subtitle">Gastá tus puntos en algo rico</p>
       </div>
       <div id="my-pts-bar" class="my-pts-bar"></div>
-      <div class="section-title">Recompensas personales</div>
+      <div class="section-label">Recompensas personales</div>
       <div id="rewards-personal"></div>
-      <div class="section-title" style="margin-top:20px">Recompensas del equipo 🤝</div>
+      <div class="section-label" style="margin-top:20px">Recompensas de equipo 🤝</div>
       <div id="rewards-team"></div>
     </section>
 
@@ -226,13 +251,13 @@
       <span class="nav-icon">⚔️</span>Misiones
     </button>
     <button class="nav-item" data-section="ruleta"             onclick="navigate('ruleta')">
-      <span class="nav-icon">🎰</span>Ruleta
+      <span class="nav-icon">🎲</span>Ruleta
     </button>
     <button class="nav-item" data-section="ranking"            onclick="navigate('ranking')">
-      <span class="nav-icon">🏆</span>Ranking
+      <span class="nav-icon">🏆</span>Gloria
     </button>
     <button class="nav-item" data-section="recompensas"        onclick="navigate('recompensas')">
-      <span class="nav-icon">🎁</span>Premios
+      <span class="nav-icon">🎁</span>Botín
     </button>
   </nav>
 

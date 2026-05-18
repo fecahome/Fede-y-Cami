@@ -736,3 +736,224 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .section.active { animation: fadeIn .25s ease; }
+
+/* ══════════════════════════════════════════════════════════════
+   ETAPA 1 — Home emocional
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Section label (reemplaza section-title) ────────────────── */
+.section-label {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* ─── Hero card ──────────────────────────────────────────────── */
+.hero-card {
+  background: linear-gradient(135deg, #2C2416 0%, #4A3520 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px 22px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::after {
+  content: '🏠';
+  position: absolute;
+  right: -8px; top: -8px;
+  font-size: 90px;
+  opacity: .08;
+  line-height: 1;
+}
+.hero-greeting {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.55);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.hero-message {
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.hero-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold-light);
+}
+
+/* ─── Points trio ────────────────────────────────────────────── */
+.points-trio {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.trio-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.trio-emoji { font-size: 20px; margin-bottom: 4px; }
+.trio-pts   { font-size: 26px; font-weight: 800; line-height: 1; }
+.trio-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .3px; }
+.trio-fede .trio-pts { color: var(--fede); }
+.trio-cami .trio-pts { color: var(--cami); }
+.trio-team .trio-pts { color: var(--gold); }
+.trio-team { border-color: var(--gold-light); background: var(--gold-bg); }
+
+/* ─── Recommended mission card ───────────────────────────────── */
+.rec-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.rec-card.rec-urgent {
+  border-color: var(--red);
+  background: var(--red-light);
+}
+.rec-card.rec-empty {
+  border-style: dashed;
+  background: var(--bg);
+  box-shadow: none;
+}
+.rec-tag {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.rec-urgent .rec-tag { color: var(--red); }
+.rec-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.rec-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.rec-actions { display: flex; gap: 8px; }
+.rec-btn-main {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--green);
+  color: white;
+  font-size: 14px; font-weight: 700;
+  transition: all .2s; text-align: center;
+}
+.rec-btn-main:hover { background: #568046; transform: translateY(-1px); }
+.rec-btn-sec {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--gold-bg);
+  color: var(--gold);
+  font-size: 14px; font-weight: 700;
+  transition: all .2s; text-align: center;
+}
+.rec-btn-sec:hover { background: var(--gold); color: white; }
+
+/* ─── Roulette CTA button ────────────────────────────────────── */
+.roulette-cta {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--gold) 0%, #E8A84A 100%);
+  color: white;
+  font-size: 17px; font-weight: 800;
+  text-align: center;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 18px rgba(200,147,58,.4);
+  transition: all .2s;
+  letter-spacing: .2px;
+}
+.roulette-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(200,147,58,.5); }
+.roulette-cta:active { transform: scale(.98); }
+
+/* ─── Team reward progress card ──────────────────────────────── */
+.team-progress-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.tp-header {
+  display: flex; align-items: center; gap: 12px;
+}
+.tp-icon { font-size: 28px; flex-shrink: 0; }
+.tp-info { flex: 1; min-width: 0; }
+.tp-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); margin-bottom: 2px; }
+.tp-reward { font-size: 15px; font-weight: 800; }
+.tp-pts { font-size: 13px; font-weight: 700; color: var(--gold); white-space: nowrap; }
+.tp-note { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-top: 8px; }
+
+/* ══════════════════════════════════════════════════════════════
+   ETAPA 2 — Misiones simplificadas
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Mission tabs ───────────────────────────────────────────── */
+.mission-tabs {
+  display: flex; gap: 6px;
+  margin-bottom: 10px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 11px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 700;
+  background: var(--card);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  transition: all .2s;
+  text-align: center;
+}
+.tab-btn:hover { border-color: var(--gold-light); color: var(--text); }
+.tab-btn.active { background: var(--gold-bg); color: var(--gold); border-color: var(--gold-light); }
+
+/* ─── Templates grid ─────────────────────────────────────────── */
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.template-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 14px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: all .2s;
+}
+.template-btn:hover { border-color: var(--gold); background: var(--gold-bg); transform: translateY(-1px); box-shadow: var(--shadow); }
+.template-btn:active { transform: scale(.97); }
+.tmpl-icon { font-size: 20px; flex-shrink: 0; }
+.tmpl-name { font-size: 13px; font-weight: 700; flex: 1; color: var(--text); line-height: 1.3; }
+.tmpl-pts  { font-size: 11px; font-weight: 800; color: var(--gold); flex-shrink: 0; }
+
+@media (min-width: 500px) {
+  .templates-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 700px) {
+  .templates-grid { grid-template-columns: repeat(4, 1fr); }
+}
