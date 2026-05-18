@@ -667,7 +667,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 #toast {
   position: fixed;
   bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
-  left: 50%; transform: translateX(-50%) translateY(160px);
+  left: 50%; transform: translateX(-50%) translateY(300px);
   background: #2C2416;
   color: white;
   padding: 14px 22px;
