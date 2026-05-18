@@ -957,3 +957,327 @@ textarea.form-input { resize: vertical; min-height: 80px; }
 @media (min-width: 700px) {
   .templates-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   MEJORAS UX — Mission card redesign + filtros + desafío + ruleta
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Mission card v2 ────────────────────────────────────────── */
+.mission-card {
+  /* Override: no más margin-bottom en la card, lo maneja el grid/stack */
+  margin-bottom: 10px;
+}
+.mission-card.mc-completada { opacity: .75; }
+.mission-card.mc-vencida    { border-color: var(--red); }
+.mission-card.mc-postergada { border-color: var(--purple-light); }
+
+/* Header: puntos + menú */
+.mc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  position: relative;
+}
+.mc-pts-pill {
+  background: var(--gold-bg);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.mc-menu-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: all .2s;
+  letter-spacing: 2px;
+}
+.mc-menu-btn:hover { background: var(--bg); color: var(--text); }
+
+/* Dropdown */
+.mc-dropdown {
+  position: absolute;
+  top: 36px; right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  overflow: hidden;
+  display: none;
+  min-width: 160px;
+}
+.mc-dropdown.open { display: block; }
+.mc-drop-item {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--red);
+  text-align: left;
+  transition: background .15s;
+}
+.mc-drop-item:hover { background: var(--red-light); }
+
+/* Card body */
+.mc-title {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.mc-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.mc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+/* Date line */
+.mc-date {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+.date-overdue  { background: var(--red-light);    color: var(--red);    }
+.date-urgent   { background: var(--orange-light); color: var(--orange); }
+.date-soon     { background: var(--gold-bg);      color: var(--gold);   }
+.date-normal   { background: var(--bg);           color: var(--text-muted); }
+.date-postponed{ background: var(--purple-light); color: var(--purple); }
+.date-done     { background: var(--green-light);  color: var(--green);  }
+.date-none     { background: var(--bg);           color: var(--text-light); }
+
+/* Actions */
+.mc-actions { display: flex; flex-direction: column; gap: 8px; }
+.mc-btn {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+  transition: all .2s;
+}
+.mc-btn:active { transform: scale(.98); }
+.mc-btn-take {
+  background: var(--gold-bg);
+  color: var(--gold);
+  border: 1.5px solid var(--gold-light);
+}
+.mc-btn-take:hover { background: var(--gold); color: white; }
+.mc-btn-complete {
+  background: var(--green-light);
+  color: var(--green);
+  border: 1.5px solid var(--green-light);
+}
+.mc-btn-complete:hover { background: var(--green); color: white; }
+
+.mc-secondary {
+  display: flex;
+  gap: 6px;
+}
+.mc-btn-sec {
+  flex: 1;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  text-align: center;
+  transition: all .2s;
+}
+.mc-btn-sec:hover { border-color: var(--text-muted); color: var(--text); }
+
+.mc-victory {
+  text-align: center;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-light);
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Owner filter row ───────────────────────────────────────── */
+.owner-filter-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+.owner-filter-row::-webkit-scrollbar { display: none; }
+.owner-chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--card);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  transition: all .2s;
+  white-space: nowrap;
+}
+.owner-chip:hover { border-color: var(--gold-light); color: var(--text); }
+.owner-chip.active { background: var(--text); color: var(--card); border-color: var(--text); }
+
+/* ─── Daily challenge card ───────────────────────────────────── */
+.challenge-card {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFF8EC 100%);
+  border: 1.5px solid var(--gold-light);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.challenge-card.challenge-done {
+  background: linear-gradient(135deg, var(--green-light) 0%, #F0FFF4 100%);
+  border-color: var(--green-light);
+}
+.challenge-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.challenge-tag {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--gold);
+}
+.challenge-card.challenge-done .challenge-tag { color: var(--green); }
+.challenge-reward {
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--gold-bg);
+  color: var(--gold);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.challenge-card.challenge-done .challenge-reward {
+  background: var(--green-light);
+  color: var(--green);
+}
+.challenge-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.challenge-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.challenge-count {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.challenge-card.challenge-done .challenge-count { color: var(--green); }
+.fill-green { background: var(--green) !important; }
+
+/* ─── Roulette result v2 ─────────────────────────────────────── */
+.result-reveal {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.result-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.result-accept {
+  flex: 1;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  background: var(--green-light);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  transition: all .2s;
+  text-align: center;
+}
+.result-accept:hover { background: var(--green); color: white; }
+.result-accept.result-team {
+  background: var(--fede-light);
+  color: var(--fede);
+}
+.result-accept.result-team:hover { background: var(--fede); color: white; }
+.result-actions-sec {
+  display: flex;
+  gap: 8px;
+}
+.result-respin {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  transition: all .2s;
+  text-align: center;
+}
+.result-respin:hover { background: var(--border); color: var(--text); }
+.result-comodin {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  background: var(--purple-light);
+  color: var(--purple);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all .2s;
+  text-align: center;
+}
+.result-comodin:hover:not(:disabled) { background: var(--purple); color: white; }
+.result-comodin:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Special event badge */
+.special-event-badge {
+  background: linear-gradient(135deg, #2C2416, #4A3820);
+  color: white;
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 800;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.special-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,.65);
+}

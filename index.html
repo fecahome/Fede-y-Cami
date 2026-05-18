@@ -88,8 +88,11 @@
       <!-- Progreso hacia próxima recompensa de equipo -->
       <div id="team-reward-progress"></div>
 
+      <!-- Desafío del día -->
+      <div id="daily-challenge"></div>
+
       <!-- Misiones del día -->
-      <div class="section-label" style="margin-top:20px">Misiones de hoy ⚔️</div>
+      <div class="section-label" style="margin-top:4px">Urgencias de hoy ⚔️</div>
       <div id="today-missions"></div>
 
     </section>
@@ -102,17 +105,19 @@
       </div>
       <!-- Tabs principales -->
       <div class="mission-tabs">
-        <button class="tab-btn active" data-filter="pendiente"  onclick="filterMissions('pendiente',this)">Pendientes</button>
+        <button class="tab-btn active" data-filter="hoy"        onclick="filterMissions('hoy',this)">⚡ Hoy</button>
+        <button class="tab-btn"        data-filter="pendiente"  onclick="filterMissions('pendiente',this)">Pendientes</button>
         <button class="tab-btn"        data-filter="en_proceso" onclick="filterMissions('en_proceso',this)">En curso</button>
-        <button class="tab-btn"        data-filter="completada" onclick="filterMissions('completada',this)">Victorias</button>
+        <button class="tab-btn"        data-filter="completada" onclick="filterMissions('completada',this)">Hechas ✅</button>
       </div>
-      <!-- Chips secundarios -->
-      <div class="filters-row" style="margin-bottom:12px">
-        <button class="filter-chip active-all" data-filter2="todos"  onclick="filterOwner('todos',this)">Todos</button>
-        <button class="filter-chip" data-filter2="fede"              onclick="filterOwner('fede',this)">🧔 Fede</button>
-        <button class="filter-chip" data-filter2="cami"              onclick="filterOwner('cami',this)">👩‍🦰 Cami</button>
-        <button class="filter-chip" data-filter2="postergada"        onclick="filterMissions('postergada',this)">📅 Pateadas</button>
-        <button class="filter-chip" data-filter2="vencida"           onclick="filterMissions('vencida',this)">💀 Vencidas</button>
+      <!-- Filtro de responsable -->
+      <div class="owner-filter-row">
+        <button class="owner-chip active" onclick="filterOwner('todos',this)">Todos</button>
+        <button class="owner-chip"        onclick="filterOwner('fede',this)">🧔 Fede</button>
+        <button class="owner-chip"        onclick="filterOwner('cami',this)">👩‍🦰 Cami</button>
+        <button class="owner-chip"        onclick="filterOwner('equipo',this)">🤝 Equipo</button>
+        <button class="owner-chip"        onclick="filterMissions('postergada',this)">📅 Pateadas</button>
+        <button class="owner-chip"        onclick="filterMissions('vencida',this)">💀 Vencidas</button>
       </div>
       <div id="missions-list" class="missions-grid"></div>
     </section>
@@ -207,12 +212,18 @@
         </div>
         <button class="spin-btn" id="spin-btn" onclick="spinRoulette()">Girar ruleta 🎲</button>
         <div class="roulette-result" id="roulette-result">
+          <div class="result-reveal" id="result-reveal">El destino eligió…</div>
           <div class="result-category" id="result-category"></div>
           <div class="result-task"     id="result-task"></div>
-          <div class="mission-meta"   id="result-meta"></div>
+          <div class="mission-meta"    id="result-meta"></div>
+          <div id="result-special" style="display:none"></div>
           <div class="result-actions">
-            <button class="result-accept" onclick="acceptRouletteTask()">Aceptar misión ✅</button>
-            <button class="result-respin" onclick="spinRoulette()">Girar otra vez 🔄</button>
+            <button class="result-accept" onclick="acceptRouletteTask()">✅ Aceptar misión</button>
+            <button class="result-accept result-team" onclick="acceptAsTeam()">🤝 Hacerla en equipo</button>
+          </div>
+          <div class="result-actions-sec">
+            <button class="result-respin" onclick="spinRoulette()">🔁 Girar otra vez</button>
+            <button class="result-comodin" id="comodin-btn" onclick="useComodin()">😈 Usar comodín</button>
           </div>
         </div>
       </div>

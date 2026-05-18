@@ -82,6 +82,13 @@ const BOSS_POOL = [
   { title: 'Compras grandes del mes',  desc: 'Supermercado completo con lista',           diff: 'pesada',  category: 'Compras'        },
 ];
 
+const SPECIAL_EVENTS = [
+  { type: 'doble',    icon: '✨', label: '¡Puntos dobles!',      note: 'Esta misión vale el doble',          multiplier: 2 },
+  { type: 'express',  icon: '⚡', label: 'Misión Express',        note: 'Solo 10 minutos, sin excusas',       multiplier: 1 },
+  { type: 'equipo',   icon: '🤝', label: 'Misión en equipo',      note: 'La hacen juntos y suman los dos',    multiplier: 1 },
+  { type: 'descanso', icon: '😴', label: 'Descanso merecido',     note: '+5 pts gratis. El reino reconoce',   multiplier: 1, bonus: 5 },
+];
+
 /* ─── State ────────────────────────────────────────────────────── */
 let state = {
   currentUser: null,
@@ -90,6 +97,8 @@ let state = {
   completedThisWeek: { fede: 0, cami: 0 },
   rewardHistory: [],
   weekStart: getWeekStart(),
+  dailyChallenge: null,
+  comodines: { fede: 1, cami: 1, weekStart: null },
 };
 
 let formState = { owner: 'ambos', diff: 'media' };
@@ -194,6 +203,110 @@ function getNextSunday() {
   return d.toISOString().slice(0, 10);
 }
 
+/* ─── Human-readable date ──────────────────────────────────────── */
+function fmtDateHuman(dateStr, status) {
+  if (!dateStr) return { text: '🧘 Sin apuro', cls: 'date-none' };
+  const today = todayStr();
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  const readable = fmtDate(dateStr);
+
+  if (status === 'completada') {
+    return { text: `✅ Completada`, cls: 'date-done' };
+  }
+  if (status === 'postergada') {
+    return { text: `📅 Pateada para el ${readable}`, cls: 'date-postponed' };
+  }
+  const overdue = dateStr < today;
+  if (overdue) {
+    return { text: `💀 Venció el ${readable} — el caos ganó`, cls: 'date-overdue' };
+  }
+  if (dateStr === today)      return { text: '⏰ Vence hoy',              cls: 'date-urgent' };
+  if (dateStr === tomorrowStr) return { text: '📅 Vence mañana',           cls: 'date-soon' };
+  return { text: `📅 Vence el ${readable}`, cls: 'date-normal' };
+}
+
+/* ─── Daily challenge ──────────────────────────────────────────── */
+function getDailyChallenge() {
+  const today = todayStr();
+  // If we already have a challenge for today, return it
+  if (state.dailyChallenge && state.dailyChallenge.date === today) {
+    return state.dailyChallenge;
+  }
+  // Generate new challenge: pick 3 pending missions, or use template names if not enough
+  const pending = state.missions.filter(m => m.status === 'pendiente' || m.status === 'en_proceso');
+  const shuffled = [...pending].sort(() => Math.random() - .5).slice(0, 3);
+  const missionIds = shuffled.map(m => m.id);
+  const challenge = { date: today, missionIds, bonusAwarded: false };
+  state.dailyChallenge = challenge;
+  save();
+  return challenge;
+}
+
+function checkDailyChallenge() {
+  if (!state.dailyChallenge) return;
+  if (state.dailyChallenge.bonusAwarded) return;
+  if (state.dailyChallenge.date !== todayStr()) return;
+  const ids = state.dailyChallenge.missionIds;
+  const done = ids.filter(id => {
+    const m = state.missions.find(x => x.id === id);
+    return m && m.status === 'completada';
+  });
+  if (done.length >= ids.length && ids.length > 0) {
+    state.dailyChallenge.bonusAwarded = true;
+    state.points.fede = (state.points.fede || 0) + 20;
+    state.points.cami = (state.points.cami || 0) + 20;
+    save();
+    showToast('🏆 Desafío del día completado! +20 pts para el equipo 🎉');
+  }
+}
+
+function getDailyChallengeProgress() {
+  const ch = getDailyChallenge();
+  const ids = ch.missionIds;
+  const done = ids.filter(id => {
+    const m = state.missions.find(x => x.id === id);
+    return m && m.status === 'completada';
+  }).length;
+  return { total: ids.length, done, bonusAwarded: ch.bonusAwarded };
+}
+
+/* ─── Comodines ────────────────────────────────────────────────── */
+function resetComodinesIfNewWeek() {
+  const week = getWeekStart();
+  if (!state.comodines || state.comodines.weekStart !== week) {
+    state.comodines = { fede: 1, cami: 1, weekStart: week };
+    save();
+  }
+}
+
+function useComodin() {
+  resetComodinesIfNewWeek();
+  const u = state.currentUser;
+  if (state.comodines[u] <= 0) {
+    showToast('😅 Ya usaste tu comodín semanal. El destino manda.');
+    return false;
+  }
+  state.comodines[u] -= 1;
+  save();
+  showToast('😈 Comodín usado! Girá de nuevo...');
+  document.getElementById('roulette-result').classList.remove('show');
+  document.getElementById('spin-btn').textContent = 'Girar ruleta 🎲';
+  rouletteResult = null;
+  updateComodinBtn();
+  return true;
+}
+
+function updateComodinBtn() {
+  resetComodinesIfNewWeek();
+  const u = state.currentUser;
+  const btn = document.getElementById('comodin-btn');
+  if (!btn) return;
+  const left = state.comodines[u] || 0;
+  btn.disabled = left <= 0;
+  btn.textContent = left > 0 ? `😈 Usar comodín (${left} restante)` : '😈 Comodín agotado';
+}
+
 /* ─── Navigation ───────────────────────────────────────────────── */
 function navigate(section) {
   currentSection = section;
@@ -208,12 +321,17 @@ function navigate(section) {
   const fab = document.getElementById('fab');
   fab.style.display = section === 'crear' ? 'none' : '';
 
-  // Reset misiones tab to pendiente when visiting
+  // Reset misiones tabs when visiting
   if (section === 'misiones') {
-    currentFilter = 'pendiente';
+    currentFilter = 'hoy';
     currentOwnerFilter = 'todos';
-    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
-    document.querySelectorAll('[data-filter2]').forEach((b, i) => b.classList.toggle('active', i === 0));
+    // Activate first tab-btn and first owner-chip
+    setTimeout(() => {
+      const tabs = document.querySelectorAll('.tab-btn');
+      tabs.forEach((b, i) => b.classList.toggle('active', i === 0));
+      const chips = document.querySelectorAll('.owner-chip');
+      chips.forEach((b, i) => b.classList.toggle('active', i === 0));
+    }, 0);
   }
 
   renderSection(section);
@@ -388,7 +506,10 @@ function renderDashboard() {
     `;
   }
 
-  // ── Misiones del día
+  // ── Desafío del día
+  renderDailyChallenge();
+
+  // ── Misiones del día (las más urgentes del usuario)
   const todayMissions = state.missions.filter(m =>
     m.status !== 'completada' &&
     (m.date === todayStr() || isOverdue(m)) &&
@@ -397,8 +518,37 @@ function renderDashboard() {
 
   const todayEl = document.getElementById('today-missions');
   todayEl.innerHTML = todayMissions.length === 0
-    ? `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">Sin misiones urgentes hoy</div><div class="es-sub">¡El reino está tranquilo!</div></div>`
+    ? `<div class="empty-state"><div class="es-icon">🎉</div><div class="es-text">Sin urgencias para hoy</div><div class="es-sub">¡El reino está tranquilo!</div></div>`
     : todayMissions.map(m => buildMissionCard(m, true)).join('');
+}
+
+function renderDailyChallenge() {
+  const el = document.getElementById('daily-challenge');
+  if (!el) return;
+  const prog = getDailyChallengeProgress();
+  if (prog.total === 0) { el.innerHTML = ''; return; }
+  const pct = Math.round((prog.done / prog.total) * 100);
+  const done = prog.bonusAwarded;
+
+  el.innerHTML = `
+    <div class="challenge-card ${done ? 'challenge-done' : ''}">
+      <div class="challenge-header">
+        <div class="challenge-tag">🔥 Desafío del día</div>
+        <div class="challenge-reward">+20 pts equipo</div>
+      </div>
+      <div class="challenge-text">
+        ${done
+          ? '🏆 ¡El reino sobrevivió otro día! ¡Increíbles!'
+          : `Completen ${prog.total} misiones antes de dormir`}
+      </div>
+      <div class="challenge-progress-row">
+        <div class="progress-bar" style="flex:1">
+          <div class="progress-fill ${done ? 'fill-green' : ''}" style="width:${pct}%"></div>
+        </div>
+        <div class="challenge-count">${prog.done}/${prog.total}</div>
+      </div>
+    </div>
+  `;
 }
 
 function renderBoss() {
@@ -455,35 +605,58 @@ function addBossMission(boss) {
 
 /* ─── Mission card builder ─────────────────────────────────────── */
 function buildMissionCard(m, compact = false) {
-  const status = (isOverdue(m) && m.status === 'pendiente') ? 'vencida' : m.status;
-  const isComplete = m.status === 'completada';
+  const effectiveStatus = (isOverdue(m) && m.status === 'pendiente') ? 'vencida' : m.status;
+  const dateInfo = fmtDateHuman(m.date, effectiveStatus);
 
-  const actions = isComplete ? '' : `
-    <div class="mission-actions">
-      ${m.status !== 'en_proceso' ? `<button class="action-btn btn-process" data-action="en_proceso" data-id="${m.id}">⚔️ En batalla</button>` : ''}
-      <button class="action-btn btn-complete" data-action="completada" data-id="${m.id}">✅ Completar</button>
-      ${m.status !== 'postergada' ? `<button class="action-btn btn-postpone" data-action="postergada" data-id="${m.id}">📅 Patear</button>` : ''}
-      ${!compact ? `<button class="action-btn btn-delete" data-delete="${m.id}">🗑️</button>` : ''}
-    </div>
-  `;
+  // Primary CTA
+  let primaryBtn = '';
+  let secondaryBtns = '';
+
+  if (effectiveStatus === 'completada') {
+    primaryBtn = `<div class="mc-victory">🏆 Victoria lograda</div>`;
+  } else if (effectiveStatus === 'vencida') {
+    primaryBtn = `<button class="mc-btn mc-btn-complete" data-action="completada" data-id="${m.id}">✅ Completar igual</button>`;
+    secondaryBtns = `<button class="mc-btn-sec" data-action="postergada" data-id="${m.id}">📅 Patear</button>`;
+  } else if (effectiveStatus === 'en_proceso') {
+    primaryBtn = `<button class="mc-btn mc-btn-complete" data-action="completada" data-id="${m.id}">✅ Completar</button>`;
+    secondaryBtns = `<button class="mc-btn-sec" data-action="postergada" data-id="${m.id}">📅 Patear</button>`;
+  } else if (effectiveStatus === 'postergada') {
+    primaryBtn = `<button class="mc-btn mc-btn-take" data-action="pendiente" data-id="${m.id}">⚔️ Retomar</button>`;
+    secondaryBtns = `<button class="mc-btn-sec" data-action="completada" data-id="${m.id}">✅ Completar</button>`;
+  } else {
+    // pendiente
+    primaryBtn = `<button class="mc-btn mc-btn-take" data-action="en_proceso" data-id="${m.id}">⚔️ Tomar misión</button>`;
+    secondaryBtns = `<button class="mc-btn-sec" data-action="completada" data-id="${m.id}">✅ Completar</button>
+                    <button class="mc-btn-sec" data-action="postergada" data-id="${m.id}">📅 Patear</button>`;
+  }
 
   return `
-    <div class="mission-card" data-id="${m.id}">
-      <div class="mission-top">
-        <div class="mission-info">
-          <div class="mission-title">${m.isBoss ? '👾 ' : ''}${m.title}</div>
-          ${m.desc ? `<div class="mission-desc">${m.desc}</div>` : ''}
+    <div class="mission-card mc-${effectiveStatus}" data-id="${m.id}">
+
+      <div class="mc-header">
+        <div class="mc-pts-pill">+${m.pts} pts</div>
+        <button class="mc-menu-btn" data-menu="${m.id}" aria-label="Opciones">⋯</button>
+        <div class="mc-dropdown" id="menu-${m.id}">
+          <button class="mc-drop-item" data-delete="${m.id}">🗑️ Eliminar misión</button>
         </div>
-        <div class="mission-pts-badge">${m.pts}p</div>
       </div>
-      <div class="mission-meta">
-        <span class="badge badge-status-${status}">${STATUS_LABELS[status] || status}</span>
+
+      <div class="mc-title">${m.isBoss ? '👾 ' : ''}${m.title}</div>
+      ${m.desc ? `<div class="mc-desc">${m.desc}</div>` : ''}
+
+      <div class="mc-badges">
         <span class="badge badge-diff-${m.diff}">${DIFF_LABELS[m.diff]}</span>
         <span class="badge badge-owner-${m.owner}">${OWNER_LABELS[m.owner]}</span>
         ${m.category ? `<span class="badge badge-category">${m.category}</span>` : ''}
-        ${m.date ? `<span class="mission-date">📅 ${fmtDate(m.date)}</span>` : ''}
       </div>
-      ${actions}
+
+      <div class="mc-date ${dateInfo.cls}">${dateInfo.text}</div>
+
+      <div class="mc-actions">
+        ${primaryBtn}
+        ${secondaryBtns ? `<div class="mc-secondary">${secondaryBtns}</div>` : ''}
+      </div>
+
     </div>
   `;
 }
@@ -510,6 +683,7 @@ function missionAction(id, newStatus) {
   }
 
   save();
+  checkDailyChallenge();
   renderSection(currentSection);
   if (currentSection !== 'dashboard') renderDashboard();
 }
@@ -523,56 +697,97 @@ function deleteMission(id) {
   });
 }
 
-/* ─── Event delegation for mission cards ──────────────────────── */
+/* ─── Event delegation ─────────────────────────────────────────── */
 document.addEventListener('click', (e) => {
+  // Action buttons (complete / take / postpone)
   const actionBtn = e.target.closest('[data-action]');
   if (actionBtn) {
     missionAction(actionBtn.dataset.id, actionBtn.dataset.action);
     return;
   }
+  // Delete
   const deleteBtn = e.target.closest('[data-delete]');
   if (deleteBtn) {
     deleteMission(deleteBtn.dataset.delete);
+    closeAllMenus();
     return;
   }
+  // ⋯ menu toggle
+  const menuBtn = e.target.closest('[data-menu]');
+  if (menuBtn) {
+    e.stopPropagation();
+    const id = menuBtn.dataset.menu;
+    const drop = document.getElementById('menu-' + id);
+    const isOpen = drop?.classList.contains('open');
+    closeAllMenus();
+    if (!isOpen && drop) drop.classList.add('open');
+    return;
+  }
+  // Click outside → close menus
+  closeAllMenus();
 });
+
+function closeAllMenus() {
+  document.querySelectorAll('.mc-dropdown.open').forEach(d => d.classList.remove('open'));
+}
 
 /* ─── Missions list ────────────────────────────────────────────── */
 function renderMissions() {
   let list = [...state.missions];
+  const today = todayStr();
 
-  // Filtro de estado (tab principal)
-  if (currentFilter === 'vencida') {
-    list = list.filter(m => isOverdue(m) && m.status !== 'completada' && m.status !== 'postergada');
+  // Tab principal
+  if (currentFilter === 'hoy') {
+    list = list.filter(m =>
+      m.status !== 'completada' &&
+      m.status !== 'postergada' &&
+      (m.date === today || isOverdue(m))
+    );
+  } else if (currentFilter === 'pendiente') {
+    list = list.filter(m => m.status === 'pendiente');
+  } else if (currentFilter === 'en_proceso') {
+    list = list.filter(m => m.status === 'en_proceso');
+  } else if (currentFilter === 'completada') {
+    list = list.filter(m => m.status === 'completada');
   } else if (currentFilter === 'postergada') {
     list = list.filter(m => m.status === 'postergada');
-  } else {
-    list = list.filter(m => m.status === currentFilter);
+  } else if (currentFilter === 'vencida') {
+    list = list.filter(m => isOverdue(m) && m.status !== 'completada' && m.status !== 'postergada');
   }
 
-  // Filtro de responsable (chip secundario)
-  if (currentOwnerFilter !== 'todos') {
+  // Filtro por responsable
+  if (currentOwnerFilter === 'equipo') {
+    list = list.filter(m => m.owner === 'ambos');
+  } else if (currentOwnerFilter !== 'todos') {
     list = list.filter(m => m.owner === currentOwnerFilter || m.owner === 'ambos');
   }
 
-  list.sort((a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
+  list.sort((a, b) => {
+    // Vencidas primero, después por fecha
+    const aOver = isOverdue(a) ? 0 : 1;
+    const bOver = isOverdue(b) ? 0 : 1;
+    if (aOver !== bOver) return aOver - bOver;
+    return (a.date || 'z') < (b.date || 'z') ? -1 : 1;
+  });
 
-  // Subtitle dinámico
+  // Subtitle
   const subtitleMap = {
-    pendiente:  `${list.length} misión${list.length !== 1 ? 'es' : ''} esperando héroe`,
-    en_proceso: `${list.length} misión${list.length !== 1 ? 'es' : ''} en batalla`,
-    completada: `${list.length} victoria${list.length !== 1 ? 's' : ''} lograda${list.length !== 1 ? 's' : ''}`,
+    hoy:        `${list.length} misión${list.length !== 1 ? 'es' : ''} para hoy`,
+    pendiente:  `${list.length} esperando héroe`,
+    en_proceso: `${list.length} en batalla`,
+    completada: `${list.length} victoria${list.length !== 1 ? 's' : ''} esta semana`,
     postergada: `${list.length} pateada${list.length !== 1 ? 's' : ''} al futuro`,
     vencida:    `${list.length} vez que el caos ganó`,
   };
   const sub = document.getElementById('missions-subtitle');
-  if (sub) sub.textContent = subtitleMap[currentFilter] || 'El reino espera tus hazañas';
+  if (sub) sub.textContent = subtitleMap[currentFilter] || 'El reino espera';
 
   const emptyMsgs = {
-    pendiente:  { icon: '🎉', text: '¡Sin misiones pendientes!', sub: 'El reino está tranquilo' },
+    hoy:        { icon: '🌅', text: '¡Sin urgencias para hoy!', sub: 'El reino está tranquilo' },
+    pendiente:  { icon: '🎉', text: '¡Sin misiones pendientes!', sub: '¡Impresionante equipo!' },
     en_proceso: { icon: '⚔️', text: 'Nada en batalla aún', sub: 'Tomá una misión y empezá' },
-    completada: { icon: '🏆', text: 'Aún no hay victorias', sub: 'Completá una misión y aparece acá' },
-    postergada: { icon: '📅', text: 'Nada pateado por ahora', sub: '¡Bien hecho!' },
+    completada: { icon: '🏆', text: 'Aún no hay victorias', sub: 'Completá una y aparece acá' },
+    postergada: { icon: '📅', text: 'Nada pateado 👏', sub: '¡El equipo cumple!' },
     vencida:    { icon: '💀', text: 'Sin misiones vencidas', sub: '¡Equipo sin deudas!' },
   };
 
@@ -587,16 +802,14 @@ function renderMissions() {
 
 function filterMissions(filter, btn) {
   currentFilter = filter;
-  // Activar tab si existe, si no chip
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderMissions();
 }
 
 function filterOwner(owner, btn) {
   currentOwnerFilter = owner;
-  document.querySelectorAll('[data-filter2]').forEach(b => b.classList.remove('active', 'active-all'));
+  document.querySelectorAll('.owner-chip').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderMissions();
 }
@@ -701,19 +914,27 @@ function saveMission() {
 }
 
 /* ─── Roulette ─────────────────────────────────────────────────── */
+let rouletteSpecialEvent = null;
+
 function spinRoulette() {
   if (spinning) return;
   spinning = true;
+  rouletteSpecialEvent = null;
 
   const btn = document.getElementById('spin-btn');
   btn.disabled = true;
-  btn.textContent = 'Girando… 🌀';
+  btn.textContent = 'El destino decide… 🌀';
   document.getElementById('roulette-result').classList.remove('show');
 
   const extra = 1440 + Math.random() * 720;
   wheelDeg += extra;
   const wheel = document.getElementById('roulette-wheel');
   wheel.style.transform = `rotate(${wheelDeg}deg)`;
+
+  // 15% chance de evento especial
+  if (Math.random() < 0.15) {
+    rouletteSpecialEvent = SPECIAL_EVENTS[Math.floor(Math.random() * SPECIAL_EVENTS.length)];
+  }
 
   rouletteResult = ROULETTE_TASKS[Math.floor(Math.random() * ROULETTE_TASKS.length)];
 
@@ -726,24 +947,63 @@ function spinRoulette() {
 }
 
 function showRouletteResult(task) {
+  const basePts = DIFF_POINTS[task.diff];
+  const multiplier = rouletteSpecialEvent?.multiplier || 1;
+  const finalPts = basePts * multiplier + (rouletteSpecialEvent?.bonus || 0);
+
+  document.getElementById('result-reveal').textContent = 'El destino eligió…';
   document.getElementById('result-category').textContent = task.category;
   document.getElementById('result-task').textContent = task.task;
   document.getElementById('result-meta').innerHTML = `
     <span class="badge badge-diff-${task.diff}">${DIFF_LABELS[task.diff]}</span>
-    <span class="badge badge-pts">+${DIFF_POINTS[task.diff]} pts</span>
+    <span class="badge badge-pts">+${finalPts} pts</span>
+    <span class="badge badge-owner-${state.currentUser}">${OWNER_LABELS[state.currentUser]}</span>
   `;
+
+  const eventEl = document.getElementById('result-special');
+  if (rouletteSpecialEvent) {
+    eventEl.innerHTML = `
+      <div class="special-event-badge">
+        ${rouletteSpecialEvent.icon} ${rouletteSpecialEvent.label}
+        <span class="special-note">${rouletteSpecialEvent.note}</span>
+      </div>
+    `;
+    eventEl.style.display = 'block';
+  } else {
+    eventEl.style.display = 'none';
+  }
+
+  updateComodinBtn();
   document.getElementById('roulette-result').classList.add('show');
 }
 
 function acceptRouletteTask() {
   if (!rouletteResult) return;
+  const basePts = DIFF_POINTS[rouletteResult.diff];
+  const multiplier = rouletteSpecialEvent?.multiplier || 1;
+  const finalPts = basePts * multiplier + (rouletteSpecialEvent?.bonus || 0);
+  const owner = rouletteSpecialEvent?.type === 'equipo' ? 'ambos' : state.currentUser;
+
+  // Evento "descanso" = bonus de puntos directos sin misión
+  if (rouletteSpecialEvent?.type === 'descanso') {
+    state.points[state.currentUser] = (state.points[state.currentUser] || 0) + finalPts;
+    save();
+    showToast(`😴 Descanso merecido! +${finalPts} pts directos 🎉`);
+    document.getElementById('roulette-result').classList.remove('show');
+    document.getElementById('spin-btn').textContent = 'Girar ruleta 🎲';
+    rouletteResult = null;
+    rouletteSpecialEvent = null;
+    renderDashboard();
+    return;
+  }
+
   const m = {
     id: uid(),
     title: rouletteResult.task,
-    desc: 'Asignada por la ruleta 🎰',
+    desc: `Asignada por la ruleta 🎲${rouletteSpecialEvent ? ' · ' + rouletteSpecialEvent.label : ''}`,
     diff: rouletteResult.diff,
-    pts: DIFF_POINTS[rouletteResult.diff],
-    owner: state.currentUser,
+    pts: finalPts,
+    owner,
     category: rouletteResult.category,
     status: 'pendiente',
     date: todayStr(),
@@ -751,10 +1011,34 @@ function acceptRouletteTask() {
   };
   state.missions.push(m);
   save();
-  showToast('✅ Misión aceptada! ¡Buena suerte!');
+  showToast(`✅ ¡Misión aceptada! +${finalPts} pts al completar`);
   document.getElementById('roulette-result').classList.remove('show');
   document.getElementById('spin-btn').textContent = 'Girar ruleta 🎲';
   rouletteResult = null;
+  rouletteSpecialEvent = null;
+}
+
+function acceptAsTeam() {
+  if (!rouletteResult) return;
+  // Forzar owner = ambos
+  const m = {
+    id: uid(),
+    title: rouletteResult.task,
+    desc: 'Misión en equipo — asignada por la ruleta 🤝',
+    diff: rouletteResult.diff,
+    pts: DIFF_POINTS[rouletteResult.diff],
+    owner: 'ambos',
+    category: rouletteResult.category,
+    status: 'pendiente',
+    date: todayStr(),
+    created: Date.now(),
+  };
+  state.missions.push(m);
+  save();
+  showToast('🤝 ¡Misión de equipo aceptada!');
+  document.getElementById('roulette-result').classList.remove('show');
+  rouletteResult = null;
+  rouletteSpecialEvent = null;
 }
 
 /* ─── Ranking ──────────────────────────────────────────────────── */
@@ -977,6 +1261,7 @@ function closeConfirm() {
 document.addEventListener('DOMContentLoaded', () => {
   load();
   initForm();
+  resetComodinesIfNewWeek();
 
   if (state.currentUser) {
     document.getElementById('user-modal').style.display = 'none';
@@ -984,8 +1269,4 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUserChip();
     renderDashboard();
   }
-
-  state.missions.forEach(m => {
-    if (isOverdue(m) && m.status === 'pendiente') { /* auto-flag handled in render */ }
-  });
 });
